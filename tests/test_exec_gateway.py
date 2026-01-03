@@ -16,7 +16,7 @@ class TestExecGateway(unittest.TestCase):
 
     def test_approval_token_allows_command(self) -> None:
         command = 'echo "approved"'
-        result = execute_command(command, approval_token=f"APPROVE: {command}")
+        result = execute_command(command, approval_token=f"APPROVE:   {command}   ")
         self.assertTrue(result["allowed"])
         self.assertEqual(result["exit_code"], 0)
 

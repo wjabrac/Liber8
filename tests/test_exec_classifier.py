@@ -16,6 +16,7 @@ class TestExecClassifier(unittest.TestCase):
     def test_destructive_commands(self) -> None:
         self.assertEqual(classify_command("rm -rf /tmp/test"), "destructive")
         self.assertEqual(classify_command("git reset --hard"), "destructive")
+        self.assertEqual(classify_command("ls && rm -rf /tmp/test"), "destructive")
 
 
 if __name__ == "__main__":

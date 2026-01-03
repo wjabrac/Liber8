@@ -16,7 +16,7 @@ def execute_command(
     timeout: float = 10.0,
 ) -> Dict[str, Any]:
     classification = classify_command(command)
-    approved = approval_token == f"APPROVE: {command}"
+    approved = _is_approved(command, approval_token)
     allowed = classification in {"read_only", "write_non_destructive"} or approved
 
     if classification in {"destructive", "network"} and not approved:
@@ -65,3 +65,17 @@ def execute_command(
         "exit_code": completed.returncode,
         "duration": duration,
     }
+
+
+def _normalize_command(command: str) -> str:
+    return " ".join(command.strip().split())
+
+
+def _is_approved(command: str, approval_token: Optional[str]) -> bool:
+    if approval_token is None:
+        return False
+    prefix = "APPROVE:"
+    if not approval_token.startswith(prefix):
+        return False
+    approved_command = approval_token[len(prefix) :].strip()
+    return _normalize_command(approved_command) == _normalize_command(command)

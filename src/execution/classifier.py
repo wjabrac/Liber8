@@ -29,6 +29,10 @@ def classify_command(command: str) -> str:
     cleaned = command.strip()
     if not cleaned:
         return "destructive"
+    if _has_command_chain(cleaned):
+        classifications = [classify_command(part) for part in _split_chain(cleaned)]
+        return _combine_classifications(classifications)
+
     lower = cleaned.lower()
     tokens = _tokenize(lower)
     if not tokens:
@@ -123,5 +127,34 @@ def _is_temp_path(path: Path) -> bool:
         resolved = path.resolve()
     except OSError:
         return False
-    tmp_roots = {Path("/tmp"), Path("/var/tmp"), Path(os.getenv("TMPDIR", "/tmp"))}
+    tmp_roots = {
+        Path("/tmp"),
+        Path("/var/tmp"),
+        Path(os.getenv("TMPDIR", "/tmp")),
+        Path(os.getenv("TEMP", "/tmp")),
+        Path(os.getenv("TMP", "/tmp")),
+    }
     return any(str(resolved).startswith(str(root)) for root in tmp_roots)
+
+
+def _has_command_chain(command: str) -> bool:
+    return any(token in command for token in ("&&", ";", "|"))
+
+
+def _split_chain(command: str) -> list[str]:
+    parts = re.split(r"(?:&&|;|\|)", command)
+    return [part.strip() for part in parts if part.strip()]
+
+
+def _combine_classifications(classifications: list[str]) -> str:
+    if not classifications:
+        return "destructive"
+    if "destructive" in classifications:
+        return "destructive"
+    if "network" in classifications:
+        return "network"
+    if "write_non_destructive" in classifications:
+        return "write_non_destructive"
+    if "read_only" in classifications:
+        return "read_only"
+    return "destructive"
