@@ -23,9 +23,10 @@ class Tagger:
                 "task_prefix": task[:12],
             }
             return TagSet(schema_version="v0", tags=tags, uncertainty={"intent": 0.0})
-        # TODO: Replace endpoint_stub with real inference call to model_endpoint.
+        # NOTE: Backend integration is a stub unless an HTTP call is implemented.
         tags = {
-            "intent": "endpoint_stub",
+            "intent": "backend_stub",
+            "backend": "stub",
             "endpoint": self.model_endpoint,
             "task_length": len(task),
         }
