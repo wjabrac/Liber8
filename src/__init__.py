@@ -1,1 +1,1 @@
-"""Liber8 core modules."""
+"""Source module init."""

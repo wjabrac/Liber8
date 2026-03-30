@@ -8,13 +8,18 @@ from src.memory_adapter import FileSystemMemoryAdapter
 
 
 class SmokeTest(unittest.TestCase):
-    def test_cognition_loop_fake_backend(self) -> None:
+    def test_cognition_loop_fallback_backend(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             storage_dir = Path(tmpdir)
-            record = run_cognition_loop("summarize last task", storage_dir, fake_backend=True)
+            record = run_cognition_loop("summarize last task", storage_dir, cognition_backend="fallback")
 
-            log_records = EventLog(storage_dir / "eventlog.jsonl").read_all()
-            memory_blocks = FileSystemMemoryAdapter(storage_dir / "memory.jsonl").read(record.tags)
+            # Find the generated run_dir
+            run_dirs = list((storage_dir / ".runs").glob("*"))
+            self.assertEqual(len(run_dirs), 1)
+            run_dir = run_dirs[0]
+
+            log_records = EventLog(run_dir / "eventlog.jsonl").read_all()
+            memory_blocks = FileSystemMemoryAdapter(run_dir / "memory.jsonl").read(record.tags)
 
         self.assertEqual(record.outcome, "success")
         self.assertGreaterEqual(len(log_records), 1)
