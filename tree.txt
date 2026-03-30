@@ -1,0 +1,1405 @@
+./
+├── ENVIRONMENT.md
+├── anysphere.remote-wsl-1.0.9/
+│   ├── README.md
+│   ├── dist/
+│   │   ├── 713.main.js
+│   │   ├── backupmain.txt.js
+│   │   ├── main.js
+│   │   ├── main.js.LICENSE.txt
+│   │   └── scripts/
+│   │       ├── wslAbrai.sh.sh
+│   │       ├── wslDownload - Copy.sh:Zone.Identifier
+│   │       ├── wslDownload.sh
+│   │       └── wslServerManager.sh.sh
+│   ├── package.json
+│   └── resources/
+│       └── icon.png
+├── beast-integration/
+│   ├── IntegrationMap.md
+│   ├── agent-patterns/
+│   │   ├── autogen-agentchat/
+│   │   │   └── src/
+│   │   │       └── autogen_agentchat/
+│   │   │           ├── __init__.py
+│   │   │           ├── agents/
+│   │   │           │   ├── __init__.py
+│   │   │           │   ├── _assistant_agent.py
+│   │   │           │   ├── _base_chat_agent.py
+│   │   │           │   ├── _code_executor_agent.py
+│   │   │           │   ├── _message_filter_agent.py
+│   │   │           │   ├── _society_of_mind_agent.py
+│   │   │           │   └── _user_proxy_agent.py
+│   │   │           ├── base/
+│   │   │           │   ├── __init__.py
+│   │   │           │   ├── _chat_agent.py
+│   │   │           │   ├── _handoff.py
+│   │   │           │   ├── _task.py
+│   │   │           │   ├── _team.py
+│   │   │           │   └── _termination.py
+│   │   │           ├── conditions/
+│   │   │           │   ├── __init__.py
+│   │   │           │   └── _terminations.py
+│   │   │           ├── messages.py
+│   │   │           ├── py.typed
+│   │   │           ├── state/
+│   │   │           │   ├── __init__.py
+│   │   │           │   └── _states.py
+│   │   │           ├── teams/
+│   │   │           │   ├── __init__.py
+│   │   │           │   └── _group_chat/
+│   │   │           │       ├── __init__.py
+│   │   │           │       ├── _base_group_chat.py
+│   │   │           │       ├── _base_group_chat_manager.py
+│   │   │           │       ├── _chat_agent_container.py
+│   │   │           │       ├── _events.py
+│   │   │           │       ├── _graph/
+│   │   │           │       │   ├── __init__.py
+│   │   │           │       │   ├── _digraph_group_chat.py
+│   │   │           │       │   └── _graph_builder.py
+│   │   │           │       ├── _magentic_one/
+│   │   │           │       │   ├── __init__.py
+│   │   │           │       │   ├── _magentic_one_group_chat.py
+│   │   │           │       │   ├── _magentic_one_orchestrator.py
+│   │   │           │       │   └── _prompts.py
+│   │   │           │       ├── _round_robin_group_chat.py
+│   │   │           │       ├── _selector_group_chat.py
+│   │   │           │       ├── _sequential_routed_agent.py
+│   │   │           │       └── _swarm_group_chat.py
+│   │   │           ├── tools/
+│   │   │           │   ├── __init__.py
+│   │   │           │   ├── _agent.py
+│   │   │           │   ├── _task_runner_tool.py
+│   │   │           │   └── _team.py
+│   │   │           ├── ui/
+│   │   │           │   ├── __init__.py
+│   │   │           │   └── _console.py
+│   │   │           └── utils/
+│   │   │               ├── __init__.py
+│   │   │               └── _utils.py
+│   │   └── autogen-core/
+│   │       └── src/
+│   │           └── autogen_core/
+│   │               ├── __init__.py
+│   │               ├── _agent.py
+│   │               ├── _agent_id.py
+│   │               ├── _agent_instantiation.py
+│   │               ├── _agent_metadata.py
+│   │               ├── _agent_proxy.py
+│   │               ├── _agent_runtime.py
+│   │               ├── _agent_type.py
+│   │               ├── _base_agent.py
+│   │               ├── _cache_store.py
+│   │               ├── _cancellation_token.py
+│   │               ├── _closure_agent.py
+│   │               ├── _component_config.py
+│   │               ├── _constants.py
+│   │               ├── _default_subscription.py
+│   │               ├── _default_topic.py
+│   │               ├── _function_utils.py
+│   │               ├── _image.py
+│   │               ├── _intervention.py
+│   │               ├── _message_context.py
+│   │               ├── _message_handler_context.py
+│   │               ├── _queue.py
+│   │               ├── _routed_agent.py
+│   │               ├── _runtime_impl_helpers.py
+│   │               ├── _serialization.py
+│   │               ├── _single_threaded_agent_runtime.py
+│   │               ├── _subscription.py
+│   │               ├── _subscription_context.py
+│   │               ├── _telemetry/
+│   │               │   ├── __init__.py
+│   │               │   ├── _constants.py
+│   │               │   ├── _genai.py
+│   │               │   ├── _propagation.py
+│   │               │   ├── _tracing.py
+│   │               │   └── _tracing_config.py
+│   │               ├── _topic.py
+│   │               ├── _type_helpers.py
+│   │               ├── _type_prefix_subscription.py
+│   │               ├── _type_subscription.py
+│   │               ├── _types.py
+│   │               ├── code_executor/
+│   │               │   ├── __init__.py
+│   │               │   ├── _base.py
+│   │               │   └── _func_with_reqs.py
+│   │               ├── exceptions.py
+│   │               ├── logging.py
+│   │               ├── memory/
+│   │               │   ├── __init__.py
+│   │               │   ├── _base_memory.py
+│   │               │   └── _list_memory.py
+│   │               ├── model_context/
+│   │               │   ├── __init__.py
+│   │               │   ├── _buffered_chat_completion_context.py
+│   │               │   ├── _chat_completion_context.py
+│   │               │   ├── _head_and_tail_chat_completion_context.py
+│   │               │   ├── _token_limited_chat_completion_context.py
+│   │               │   └── _unbounded_chat_completion_context.py
+│   │               ├── models/
+│   │               │   ├── __init__.py
+│   │               │   ├── _model_client.py
+│   │               │   └── _types.py
+│   │               ├── py.typed
+│   │               ├── tool_agent/
+│   │               │   ├── __init__.py
+│   │               │   ├── _caller_loop.py
+│   │               │   └── _tool_agent.py
+│   │               ├── tools/
+│   │               │   ├── __init__.py
+│   │               │   ├── _base.py
+│   │               │   ├── _function_tool.py
+│   │               │   ├── _static_workbench.py
+│   │               │   └── _workbench.py
+│   │               └── utils/
+│   │                   ├── __init__.py
+│   │                   ├── _json_to_pydantic.py
+│   │                   └── _load_json.py
+│   ├── beast-integration-setup.sh
+│   ├── execution/
+│   │   ├── browser/
+│   │   │   ├── DEPS.list
+│   │   │   ├── androidServerImpl.ts
+│   │   │   ├── browserServerImpl.ts
+│   │   │   ├── cli/
+│   │   │   │   ├── DEPS.list
+│   │   │   │   ├── driver.ts
+│   │   │   │   ├── program.ts
+│   │   │   │   └── programWithTestStub.ts
+│   │   │   ├── client/
+│   │   │   │   ├── DEPS.list
+│   │   │   │   ├── accessibility.ts
+│   │   │   │   ├── android.ts
+│   │   │   │   ├── api.ts
+│   │   │   │   ├── artifact.ts
+│   │   │   │   ├── browser.ts
+│   │   │   │   ├── browserContext.ts
+│   │   │   │   ├── browserType.ts
+│   │   │   │   ├── cdpSession.ts
+│   │   │   │   ├── channelOwner.ts
+│   │   │   │   ├── clientHelper.ts
+│   │   │   │   ├── clientInstrumentation.ts
+│   │   │   │   ├── clientStackTrace.ts
+│   │   │   │   ├── clock.ts
+│   │   │   │   ├── connection.ts
+│   │   │   │   ├── consoleMessage.ts
+│   │   │   │   ├── coverage.ts
+│   │   │   │   ├── dialog.ts
+│   │   │   │   ├── download.ts
+│   │   │   │   ├── electron.ts
+│   │   │   │   ├── elementHandle.ts
+│   │   │   │   ├── errors.ts
+│   │   │   │   ├── eventEmitter.ts
+│   │   │   │   ├── events.ts
+│   │   │   │   ├── fetch.ts
+│   │   │   │   ├── fileChooser.ts
+│   │   │   │   ├── fileUtils.ts
+│   │   │   │   ├── frame.ts
+│   │   │   │   ├── harRouter.ts
+│   │   │   │   ├── input.ts
+│   │   │   │   ├── jsHandle.ts
+│   │   │   │   ├── jsonPipe.ts
+│   │   │   │   ├── localUtils.ts
+│   │   │   │   ├── locator.ts
+│   │   │   │   ├── network.ts
+│   │   │   │   ├── page.ts
+│   │   │   │   ├── platform.ts
+│   │   │   │   ├── playwright.ts
+│   │   │   │   ├── selectors.ts
+│   │   │   │   ├── stream.ts
+│   │   │   │   ├── timeoutSettings.ts
+│   │   │   │   ├── tracing.ts
+│   │   │   │   ├── types.ts
+│   │   │   │   ├── video.ts
+│   │   │   │   ├── waiter.ts
+│   │   │   │   ├── webError.ts
+│   │   │   │   ├── webSocket.ts
+│   │   │   │   ├── worker.ts
+│   │   │   │   └── writableStream.ts
+│   │   │   ├── common/
+│   │   │   │   └── DEPS.list
+│   │   │   ├── inProcessFactory.ts
+│   │   │   ├── inprocess.ts
+│   │   │   ├── outofprocess.ts
+│   │   │   ├── protocol/
+│   │   │   │   ├── DEPS.list
+│   │   │   │   ├── serializers.ts
+│   │   │   │   ├── validator.ts
+│   │   │   │   └── validatorPrimitives.ts
+│   │   │   ├── remote/
+│   │   │   │   ├── DEPS.list
+│   │   │   │   ├── playwrightConnection.ts
+│   │   │   │   └── playwrightServer.ts
+│   │   │   ├── server/
+│   │   │   │   ├── DEPS.list
+│   │   │   │   ├── accessibility.ts
+│   │   │   │   ├── android/
+│   │   │   │   │   ├── DEPS.list
+│   │   │   │   │   ├── android.ts
+│   │   │   │   │   ├── backendAdb.ts
+│   │   │   │   │   └── driver/
+│   │   │   │   │       ├── app/
+│   │   │   │   │       │   ├── build.gradle
+│   │   │   │   │       │   ├── proguard-rules.pro
+│   │   │   │   │       │   └── src/
+│   │   │   │   │       │       ├── androidTest/
+│   │   │   │   │       │       │   └── java/
+│   │   │   │   │       │       │       └── com/
+│   │   │   │   │       │       │           └── microsoft/
+│   │   │   │   │       │       │               └── playwright/
+│   │   │   │   │       │       │                   └── androiddriver/
+│   │   │   │   │       │       │                       └── InstrumentedTest.java
+│   │   │   │   │       │       └── main/
+│   │   │   │   │       │           ├── AndroidManifest.xml
+│   │   │   │   │       │           └── res/
+│   │   │   │   │       │               ├── drawable/
+│   │   │   │   │       │               │   └── ic_launcher_background.xml
+│   │   │   │   │       │               ├── drawable-v24/
+│   │   │   │   │       │               │   └── ic_launcher_foreground.xml
+│   │   │   │   │       │               └── mipmap-anydpi-v26/
+│   │   │   │   │       │                   ├── ic_launcher.xml
+│   │   │   │   │       │                   └── ic_launcher_round.xml
+│   │   │   │   │       ├── build.gradle
+│   │   │   │   │       ├── gradle/
+│   │   │   │   │       │   └── wrapper/
+│   │   │   │   │       │       ├── gradle-wrapper.jar
+│   │   │   │   │       │       └── gradle-wrapper.properties
+│   │   │   │   │       ├── gradle.properties
+│   │   │   │   │       ├── gradlew*
+│   │   │   │   │       ├── gradlew.bat
+│   │   │   │   │       └── settings.gradle
+│   │   │   │   ├── artifact.ts
+│   │   │   │   ├── bidi/
+│   │   │   │   │   ├── DEPS.list
+│   │   │   │   │   ├── bidiBrowser.ts
+│   │   │   │   │   ├── bidiChromium.ts
+│   │   │   │   │   ├── bidiConnection.ts
+│   │   │   │   │   ├── bidiExecutionContext.ts
+│   │   │   │   │   ├── bidiFirefox.ts
+│   │   │   │   │   ├── bidiInput.ts
+│   │   │   │   │   ├── bidiNetworkManager.ts
+│   │   │   │   │   ├── bidiOverCdp.ts
+│   │   │   │   │   ├── bidiPage.ts
+│   │   │   │   │   ├── bidiPdf.ts
+│   │   │   │   │   └── third_party/
+│   │   │   │   │       ├── bidiCommands.d.ts
+│   │   │   │   │       ├── bidiDeserializer.ts
+│   │   │   │   │       ├── bidiKeyboard.ts
+│   │   │   │   │       ├── bidiProtocol.ts
+│   │   │   │   │       ├── bidiProtocolCore.ts
+│   │   │   │   │       ├── bidiProtocolPermissions.ts
+│   │   │   │   │       ├── bidiSerializer.ts
+│   │   │   │   │       └── firefoxPrefs.ts
+│   │   │   │   ├── browser.ts
+│   │   │   │   ├── browserContext.ts
+│   │   │   │   ├── browserType.ts
+│   │   │   │   ├── callLog.ts
+│   │   │   │   ├── chromium/
+│   │   │   │   │   ├── appIcon.png
+│   │   │   │   │   ├── chromium.ts
+│   │   │   │   │   ├── chromiumSwitches.ts
+│   │   │   │   │   ├── crAccessibility.ts
+│   │   │   │   │   ├── crBrowser.ts
+│   │   │   │   │   ├── crConnection.ts
+│   │   │   │   │   ├── crCoverage.ts
+│   │   │   │   │   ├── crDevTools.ts
+│   │   │   │   │   ├── crDragDrop.ts
+│   │   │   │   │   ├── crExecutionContext.ts
+│   │   │   │   │   ├── crInput.ts
+│   │   │   │   │   ├── crNetworkManager.ts
+│   │   │   │   │   ├── crPage.ts
+│   │   │   │   │   ├── crPdf.ts
+│   │   │   │   │   ├── crProtocolHelper.ts
+│   │   │   │   │   ├── crServiceWorker.ts
+│   │   │   │   │   ├── defaultFontFamilies.ts
+│   │   │   │   │   ├── protocol.d.ts
+│   │   │   │   │   └── videoRecorder.ts
+│   │   │   │   ├── clock.ts
+│   │   │   │   ├── codegen/
+│   │   │   │   │   ├── DEPS.list
+│   │   │   │   │   ├── csharp.ts
+│   │   │   │   │   ├── java.ts
+│   │   │   │   │   ├── javascript.ts
+│   │   │   │   │   ├── jsonl.ts
+│   │   │   │   │   ├── language.ts
+│   │   │   │   │   ├── languages.ts
+│   │   │   │   │   ├── python.ts
+│   │   │   │   │   └── types.ts
+│   │   │   │   ├── console.ts
+│   │   │   │   ├── cookieStore.ts
+│   │   │   │   ├── debugController.ts
+│   │   │   │   ├── debugger.ts
+│   │   │   │   ├── deviceDescriptors.ts
+│   │   │   │   ├── deviceDescriptorsSource.json
+│   │   │   │   ├── dialog.ts
+│   │   │   │   ├── dispatchers/
+│   │   │   │   │   ├── DEPS.list
+│   │   │   │   │   ├── androidDispatcher.ts
+│   │   │   │   │   ├── artifactDispatcher.ts
+│   │   │   │   │   ├── browserContextDispatcher.ts
+│   │   │   │   │   ├── browserDispatcher.ts
+│   │   │   │   │   ├── browserTypeDispatcher.ts
+│   │   │   │   │   ├── cdpSessionDispatcher.ts
+│   │   │   │   │   ├── debugControllerDispatcher.ts
+│   │   │   │   │   ├── dialogDispatcher.ts
+│   │   │   │   │   ├── dispatcher.ts
+│   │   │   │   │   ├── electronDispatcher.ts
+│   │   │   │   │   ├── elementHandlerDispatcher.ts
+│   │   │   │   │   ├── frameDispatcher.ts
+│   │   │   │   │   ├── jsHandleDispatcher.ts
+│   │   │   │   │   ├── jsonPipeDispatcher.ts
+│   │   │   │   │   ├── localUtilsDispatcher.ts
+│   │   │   │   │   ├── networkDispatchers.ts
+│   │   │   │   │   ├── pageDispatcher.ts
+│   │   │   │   │   ├── playwrightDispatcher.ts
+│   │   │   │   │   ├── streamDispatcher.ts
+│   │   │   │   │   ├── tracingDispatcher.ts
+│   │   │   │   │   ├── webSocketRouteDispatcher.ts
+│   │   │   │   │   └── writableStreamDispatcher.ts
+│   │   │   │   ├── dom.ts
+│   │   │   │   ├── download.ts
+│   │   │   │   ├── electron/
+│   │   │   │   │   ├── DEPS.list
+│   │   │   │   │   ├── electron.ts
+│   │   │   │   │   └── loader.ts
+│   │   │   │   ├── errors.ts
+│   │   │   │   ├── fetch.ts
+│   │   │   │   ├── fileChooser.ts
+│   │   │   │   ├── fileUploadUtils.ts
+│   │   │   │   ├── firefox/
+│   │   │   │   │   ├── ffAccessibility.ts
+│   │   │   │   │   ├── ffBrowser.ts
+│   │   │   │   │   ├── ffConnection.ts
+│   │   │   │   │   ├── ffExecutionContext.ts
+│   │   │   │   │   ├── ffInput.ts
+│   │   │   │   │   ├── ffNetworkManager.ts
+│   │   │   │   │   ├── ffPage.ts
+│   │   │   │   │   ├── firefox.ts
+│   │   │   │   │   └── protocol.d.ts
+│   │   │   │   ├── formData.ts
+│   │   │   │   ├── frameSelectors.ts
+│   │   │   │   ├── frames.ts
+│   │   │   │   ├── har/
+│   │   │   │   │   ├── harRecorder.ts
+│   │   │   │   │   └── harTracer.ts
+│   │   │   │   ├── harBackend.ts
+│   │   │   │   ├── helper.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── input.ts
+│   │   │   │   ├── instrumentation.ts
+│   │   │   │   ├── javascript.ts
+│   │   │   │   ├── launchApp.ts
+│   │   │   │   ├── localUtils.ts
+│   │   │   │   ├── macEditingCommands.ts
+│   │   │   │   ├── network.ts
+│   │   │   │   ├── page.ts
+│   │   │   │   ├── pipeTransport.ts
+│   │   │   │   ├── playwright.ts
+│   │   │   │   ├── progress.ts
+│   │   │   │   ├── protocolError.ts
+│   │   │   │   ├── recorder/
+│   │   │   │   │   ├── DEPS.list
+│   │   │   │   │   ├── chat.ts
+│   │   │   │   │   ├── recorderApp.ts
+│   │   │   │   │   ├── recorderRunner.ts
+│   │   │   │   │   ├── recorderSignalProcessor.ts
+│   │   │   │   │   ├── recorderUtils.ts
+│   │   │   │   │   └── throttledFile.ts
+│   │   │   │   ├── recorder.ts
+│   │   │   │   ├── registry/
+│   │   │   │   │   ├── browserFetcher.ts
+│   │   │   │   │   ├── dependencies.ts
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── nativeDeps.ts
+│   │   │   │   │   └── oopDownloadBrowserMain.ts
+│   │   │   │   ├── screenshotter.ts
+│   │   │   │   ├── selectors.ts
+│   │   │   │   ├── socksClientCertificatesInterceptor.ts
+│   │   │   │   ├── socksInterceptor.ts
+│   │   │   │   ├── trace/
+│   │   │   │   │   ├── recorder/
+│   │   │   │   │   │   ├── DEPS.list
+│   │   │   │   │   │   ├── snapshotter.ts
+│   │   │   │   │   │   ├── snapshotterInjected.ts
+│   │   │   │   │   │   └── tracing.ts
+│   │   │   │   │   └── viewer/
+│   │   │   │   │       ├── DEPS.list
+│   │   │   │   │       └── traceViewer.ts
+│   │   │   │   ├── transport.ts
+│   │   │   │   ├── types.ts
+│   │   │   │   ├── usKeyboardLayout.ts
+│   │   │   │   ├── utils/
+│   │   │   │   │   ├── DEPS.list
+│   │   │   │   │   ├── ascii.ts
+│   │   │   │   │   ├── comparators.ts
+│   │   │   │   │   ├── crypto.ts
+│   │   │   │   │   ├── debug.ts
+│   │   │   │   │   ├── debugLogger.ts
+│   │   │   │   │   ├── env.ts
+│   │   │   │   │   ├── eventsHelper.ts
+│   │   │   │   │   ├── expectUtils.ts
+│   │   │   │   │   ├── fileUtils.ts
+│   │   │   │   │   ├── happyEyeballs.ts
+│   │   │   │   │   ├── hostPlatform.ts
+│   │   │   │   │   ├── httpServer.ts
+│   │   │   │   │   ├── image_tools/
+│   │   │   │   │   │   ├── colorUtils.ts
+│   │   │   │   │   │   ├── compare.ts
+│   │   │   │   │   │   ├── imageChannel.ts
+│   │   │   │   │   │   └── stats.ts
+│   │   │   │   │   ├── linuxUtils.ts
+│   │   │   │   │   ├── network.ts
+│   │   │   │   │   ├── nodePlatform.ts
+│   │   │   │   │   ├── pipeTransport.ts
+│   │   │   │   │   ├── processLauncher.ts
+│   │   │   │   │   ├── profiler.ts
+│   │   │   │   │   ├── socksProxy.ts
+│   │   │   │   │   ├── spawnAsync.ts
+│   │   │   │   │   ├── task.ts
+│   │   │   │   │   ├── userAgent.ts
+│   │   │   │   │   ├── wsServer.ts
+│   │   │   │   │   ├── zipFile.ts
+│   │   │   │   │   └── zones.ts
+│   │   │   │   └── webkit/
+│   │   │   │       ├── protocol.d.ts
+│   │   │   │       ├── webkit.ts
+│   │   │   │       ├── wkAccessibility.ts
+│   │   │   │       ├── wkBrowser.ts
+│   │   │   │       ├── wkConnection.ts
+│   │   │   │       ├── wkExecutionContext.ts
+│   │   │   │       ├── wkInput.ts
+│   │   │   │       ├── wkInterceptableRequest.ts
+│   │   │   │       ├── wkPage.ts
+│   │   │   │       ├── wkProvisionalPage.ts
+│   │   │   │       └── wkWorkers.ts
+│   │   │   ├── third_party/
+│   │   │   │   └── pixelmatch.js
+│   │   │   ├── utils/
+│   │   │   │   └── isomorphic/
+│   │   │   │       ├── DEPS.list
+│   │   │   │       ├── ariaSnapshot.ts
+│   │   │   │       ├── assert.ts
+│   │   │   │       ├── colors.ts
+│   │   │   │       ├── cssParser.ts
+│   │   │   │       ├── cssTokenizer.ts
+│   │   │   │       ├── headers.ts
+│   │   │   │       ├── locatorGenerators.ts
+│   │   │   │       ├── locatorParser.ts
+│   │   │   │       ├── locatorUtils.ts
+│   │   │   │       ├── manualPromise.ts
+│   │   │   │       ├── mimeType.ts
+│   │   │   │       ├── multimap.ts
+│   │   │   │       ├── protocolFormatter.ts
+│   │   │   │       ├── protocolMetainfo.ts
+│   │   │   │       ├── rtti.ts
+│   │   │   │       ├── selectorParser.ts
+│   │   │   │       ├── semaphore.ts
+│   │   │   │       ├── stackTrace.ts
+│   │   │   │       ├── stringUtils.ts
+│   │   │   │       ├── time.ts
+│   │   │   │       ├── timeoutRunner.ts
+│   │   │   │       ├── traceUtils.ts
+│   │   │   │       ├── types.ts
+│   │   │   │       ├── urlMatch.ts
+│   │   │   │       └── utilityScriptSerializers.ts
+│   │   │   ├── utils.ts
+│   │   │   ├── utilsBundle.ts
+│   │   │   └── zipBundle.ts
+│   │   └── interpreter/
+│   │       ├── __init__.py
+│   │       ├── archived_server_1.py
+│   │       ├── archived_server_2.py
+│   │       ├── async_core.py
+│   │       ├── computer/
+│   │       │   ├── __init__.py
+│   │       │   ├── ai/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── ai.py
+│   │       │   ├── browser/
+│   │       │   │   ├── __init__.py
+│   │       │   │   ├── browser.py
+│   │       │   │   └── browser_next.py
+│   │       │   ├── calendar/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── calendar.py
+│   │       │   ├── clipboard/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── clipboard.py
+│   │       │   ├── computer.py
+│   │       │   ├── contacts/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── contacts.py
+│   │       │   ├── display/
+│   │       │   │   ├── __init__.py
+│   │       │   │   ├── display.py
+│   │       │   │   └── point/
+│   │       │   │       └── point.py
+│   │       │   ├── docs/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── docs.py
+│   │       │   ├── files/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── files.py
+│   │       │   ├── keyboard/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── keyboard.py
+│   │       │   ├── mail/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── mail.py
+│   │       │   ├── mouse/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── mouse.py
+│   │       │   ├── os/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── os.py
+│   │       │   ├── skills/
+│   │       │   │   └── skills.py
+│   │       │   ├── sms/
+│   │       │   │   ├── __init__.py
+│   │       │   │   └── sms.py
+│   │       │   ├── terminal/
+│   │       │   │   ├── __init__.py
+│   │       │   │   ├── base_language.py
+│   │       │   │   ├── languages/
+│   │       │   │   │   ├── __init__.py
+│   │       │   │   │   ├── applescript.py
+│   │       │   │   │   ├── html.py
+│   │       │   │   │   ├── java.py
+│   │       │   │   │   ├── javascript.py
+│   │       │   │   │   ├── jupyter_language.py
+│   │       │   │   │   ├── powershell.py
+│   │       │   │   │   ├── python.py
+│   │       │   │   │   ├── r.py
+│   │       │   │   │   ├── react.py
+│   │       │   │   │   ├── ruby.py
+│   │       │   │   │   ├── shell.py
+│   │       │   │   │   └── subprocess_language.py
+│   │       │   │   └── terminal.py
+│   │       │   ├── utils/
+│   │       │   │   ├── computer_vision.py
+│   │       │   │   ├── get_active_window.py
+│   │       │   │   ├── html_to_png_base64.py
+│   │       │   │   ├── recipient_utils.py
+│   │       │   │   └── run_applescript.py
+│   │       │   └── vision/
+│   │       │       ├── __init__.py
+│   │       │       └── vision.py
+│   │       ├── core.py
+│   │       ├── default_system_message.py
+│   │       ├── llm/
+│   │       │   ├── __init__.py
+│   │       │   ├── llm.py
+│   │       │   ├── run_function_calling_llm.py
+│   │       │   ├── run_text_llm.py
+│   │       │   ├── run_tool_calling_llm.py
+│   │       │   └── utils/
+│   │       │       ├── convert_to_openai_messages.py
+│   │       │       ├── merge_deltas.py
+│   │       │       └── parse_partial_json.py
+│   │       ├── render_message.py
+│   │       ├── respond.py
+│   │       └── utils/
+│   │           ├── __init__.py
+│   │           ├── lazy_import.py
+│   │           ├── scan_code.py
+│   │           ├── system_debug_info.py
+│   │           ├── telemetry.py
+│   │           ├── temporary_file.py
+│   │           └── truncate_output.py
+│   ├── integration-map.py
+│   ├── memory/
+│   │   └── chromadb/
+│   │       ├── __init__.py
+│   │       ├── api/
+│   │       │   ├── __init__.py
+│   │       │   ├── async_api.py
+│   │       │   ├── async_client.py
+│   │       │   ├── async_fastapi.py
+│   │       │   ├── base_http_client.py
+│   │       │   ├── client.py
+│   │       │   ├── collection_configuration.py
+│   │       │   ├── configuration.py
+│   │       │   ├── fastapi.py
+│   │       │   ├── models/
+│   │       │   │   ├── AsyncCollection.py
+│   │       │   │   ├── Collection.py
+│   │       │   │   └── CollectionCommon.py
+│   │       │   ├── rust.py
+│   │       │   ├── segment.py
+│   │       │   ├── shared_system_client.py
+│   │       │   └── types.py
+│   │       ├── app.py
+│   │       ├── auth/
+│   │       │   ├── __init__.py
+│   │       │   ├── basic_authn/
+│   │       │   │   └── __init__.py
+│   │       │   ├── simple_rbac_authz/
+│   │       │   │   └── __init__.py
+│   │       │   ├── token_authn/
+│   │       │   │   └── __init__.py
+│   │       │   └── utils/
+│   │       │       └── __init__.py
+│   │       ├── base_types.py
+│   │       ├── chromadb_rust_bindings.pyi
+│   │       ├── cli/
+│   │       │   ├── __init__.py
+│   │       │   ├── cli.py
+│   │       │   └── utils.py
+│   │       ├── config.py
+│   │       ├── db/
+│   │       │   ├── __init__.py
+│   │       │   ├── base.py
+│   │       │   ├── impl/
+│   │       │   │   ├── __init__.py
+│   │       │   │   ├── grpc/
+│   │       │   │   │   ├── client.py
+│   │       │   │   │   └── server.py
+│   │       │   │   ├── sqlite.py
+│   │       │   │   └── sqlite_pool.py
+│   │       │   ├── migrations.py
+│   │       │   ├── mixins/
+│   │       │   │   ├── embeddings_queue.py
+│   │       │   │   └── sysdb.py
+│   │       │   └── system.py
+│   │       ├── errors.py
+│   │       ├── execution/
+│   │       │   ├── __init__.py
+│   │       │   ├── executor/
+│   │       │   │   ├── abstract.py
+│   │       │   │   ├── distributed.py
+│   │       │   │   └── local.py
+│   │       │   └── expression/
+│   │       │       ├── operator.py
+│   │       │       └── plan.py
+│   │       ├── experimental/
+│   │       │   └── density_relevance.ipynb
+│   │       ├── ingest/
+│   │       │   ├── __init__.py
+│   │       │   └── impl/
+│   │       │       └── utils.py
+│   │       ├── log_config.yml
+│   │       ├── logservice/
+│   │       │   └── logservice.py
+│   │       ├── migrations/
+│   │       │   ├── __init__.py
+│   │       │   ├── embeddings_queue/
+│   │       │   │   ├── 00001-embeddings.sqlite.sql
+│   │       │   │   └── 00002-embeddings-queue-config.sqlite.sql
+│   │       │   ├── metadb/
+│   │       │   │   ├── 00001-embedding-metadata.sqlite.sql
+│   │       │   │   ├── 00002-embedding-metadata.sqlite.sql
+│   │       │   │   ├── 00003-full-text-tokenize.sqlite.sql
+│   │       │   │   ├── 00004-metadata-indices.sqlite.sql
+│   │       │   │   └── 00005-max-seq-id-int.sqlite.sql
+│   │       │   └── sysdb/
+│   │       │       ├── 00001-collections.sqlite.sql
+│   │       │       ├── 00002-segments.sqlite.sql
+│   │       │       ├── 00003-collection-dimension.sqlite.sql
+│   │       │       ├── 00004-tenants-databases.sqlite.sql
+│   │       │       ├── 00005-remove-topic.sqlite.sql
+│   │       │       ├── 00006-collection-segment-metadata.sqlite.sql
+│   │       │       ├── 00007-collection-config.sqlite.sql
+│   │       │       ├── 00008-maintenance-log.sqlite.sql
+│   │       │       └── 00009-segment-collection-not-null.sqlite.sql
+│   │       ├── proto/
+│   │       │   ├── __init__.py
+│   │       │   ├── convert.py
+│   │       │   └── utils.py
+│   │       ├── py.typed
+│   │       ├── quota/
+│   │       │   ├── __init__.py
+│   │       │   └── simple_quota_enforcer/
+│   │       │       └── __init__.py
+│   │       ├── rate_limit/
+│   │       │   ├── __init__.py
+│   │       │   └── simple_rate_limit/
+│   │       │       └── __init__.py
+│   │       ├── segment/
+│   │       │   ├── __init__.py
+│   │       │   ├── distributed/
+│   │       │   │   └── __init__.py
+│   │       │   └── impl/
+│   │       │       ├── __init__.py
+│   │       │       ├── distributed/
+│   │       │       │   └── segment_directory.py
+│   │       │       ├── manager/
+│   │       │       │   ├── __init__.py
+│   │       │       │   ├── cache/
+│   │       │       │   │   ├── __init__.py
+│   │       │       │   │   └── cache.py
+│   │       │       │   ├── distributed.py
+│   │       │       │   └── local.py
+│   │       │       ├── metadata/
+│   │       │       │   └── sqlite.py
+│   │       │       └── vector/
+│   │       │           ├── batch.py
+│   │       │           ├── brute_force_index.py
+│   │       │           ├── hnsw_params.py
+│   │       │           ├── local_hnsw.py
+│   │       │           └── local_persistent_hnsw.py
+│   │       ├── serde.py
+│   │       ├── server/
+│   │       │   ├── __init__.py
+│   │       │   └── fastapi/
+│   │       │       ├── __init__.py
+│   │       │       └── types.py
+│   │       ├── telemetry/
+│   │       │   ├── __init__.py
+│   │       │   ├── opentelemetry/
+│   │       │   │   ├── __init__.py
+│   │       │   │   ├── fastapi.py
+│   │       │   │   └── grpc.py
+│   │       │   └── product/
+│   │       │       ├── __init__.py
+│   │       │       ├── events.py
+│   │       │       └── posthog.py
+│   │       ├── types.py
+│   │       └── utils/
+│   │           ├── __init__.py
+│   │           ├── async_to_sync.py
+│   │           ├── batch_utils.py
+│   │           ├── data_loaders.py
+│   │           ├── delete_file.py
+│   │           ├── directory.py
+│   │           ├── distance_functions.py
+│   │           ├── embedding_functions/
+│   │           │   ├── __init__.py
+│   │           │   ├── amazon_bedrock_embedding_function.py
+│   │           │   ├── baseten_embedding_function.py
+│   │           │   ├── chroma_langchain_embedding_function.py
+│   │           │   ├── cloudflare_workers_ai_embedding_function.py
+│   │           │   ├── cohere_embedding_function.py
+│   │           │   ├── google_embedding_function.py
+│   │           │   ├── huggingface_embedding_function.py
+│   │           │   ├── instructor_embedding_function.py
+│   │           │   ├── jina_embedding_function.py
+│   │           │   ├── mistral_embedding_function.py
+│   │           │   ├── morph_embedding_function.py
+│   │           │   ├── ollama_embedding_function.py
+│   │           │   ├── onnx_mini_lm_l6_v2.py
+│   │           │   ├── open_clip_embedding_function.py
+│   │           │   ├── openai_embedding_function.py
+│   │           │   ├── roboflow_embedding_function.py
+│   │           │   ├── schemas/
+│   │           │   │   ├── __init__.py
+│   │           │   │   ├── registry.py
+│   │           │   │   └── schema_utils.py
+│   │           │   ├── sentence_transformer_embedding_function.py
+│   │           │   ├── text2vec_embedding_function.py
+│   │           │   ├── together_ai_embedding_function.py
+│   │           │   └── voyageai_embedding_function.py
+│   │           ├── fastapi.py
+│   │           ├── lru_cache.py
+│   │           ├── messageid.py
+│   │           ├── read_write_lock.py
+│   │           ├── rendezvous_hash.py
+│   │           └── results.py
+│   ├── role-system/
+│   │   ├── __init__.py
+│   │   ├── agent.py
+│   │   ├── agents/
+│   │   │   ├── __init__.py
+│   │   │   ├── agent_adapters/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── base_agent_adapter.py
+│   │   │   │   ├── base_converter_adapter.py
+│   │   │   │   ├── base_tool_adapter.py
+│   │   │   │   ├── langgraph/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── langgraph_adapter.py
+│   │   │   │   │   ├── langgraph_tool_adapter.py
+│   │   │   │   │   └── structured_output_converter.py
+│   │   │   │   └── openai_agents/
+│   │   │   │       ├── __init__.py
+│   │   │   │       ├── openai_adapter.py
+│   │   │   │       ├── openai_agent_tool_adapter.py
+│   │   │   │       └── structured_output_converter.py
+│   │   │   ├── agent_builder/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── base_agent.py
+│   │   │   │   ├── base_agent_executor_mixin.py
+│   │   │   │   └── utilities/
+│   │   │   │       ├── __init__.py
+│   │   │   │       ├── base_output_converter.py
+│   │   │   │       └── base_token_process.py
+│   │   │   ├── cache/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── cache_handler.py
+│   │   │   ├── crew_agent_executor.py
+│   │   │   ├── parser.py
+│   │   │   └── tools_handler.py
+│   │   ├── cli/
+│   │   │   ├── __init__.py
+│   │   │   ├── add_crew_to_flow.py
+│   │   │   ├── authentication/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── constants.py
+│   │   │   │   ├── main.py
+│   │   │   │   ├── providers/
+│   │   │   │   │   ├── auth0.py
+│   │   │   │   │   ├── base_provider.py
+│   │   │   │   │   ├── okta.py
+│   │   │   │   │   └── workos.py
+│   │   │   │   ├── token.py
+│   │   │   │   └── utils.py
+│   │   │   ├── cli.py
+│   │   │   ├── command.py
+│   │   │   ├── config.py
+│   │   │   ├── constants.py
+│   │   │   ├── create_crew.py
+│   │   │   ├── create_flow.py
+│   │   │   ├── crew_chat.py
+│   │   │   ├── deploy/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── main.py
+│   │   │   ├── enterprise/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── main.py
+│   │   │   ├── evaluate_crew.py
+│   │   │   ├── git.py
+│   │   │   ├── install_crew.py
+│   │   │   ├── kickoff_flow.py
+│   │   │   ├── organization/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── main.py
+│   │   │   ├── plot_flow.py
+│   │   │   ├── plus_api.py
+│   │   │   ├── provider.py
+│   │   │   ├── replay_from_task.py
+│   │   │   ├── reset_memories_command.py
+│   │   │   ├── run_crew.py
+│   │   │   ├── settings/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── main.py
+│   │   │   ├── shared/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── token_manager.py
+│   │   │   ├── templates/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── crew/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── config/
+│   │   │   │   │   │   ├── agents.yaml
+│   │   │   │   │   │   └── tasks.yaml
+│   │   │   │   │   ├── crew.py
+│   │   │   │   │   ├── main.py
+│   │   │   │   │   └── tools/
+│   │   │   │   │       ├── __init__.py
+│   │   │   │   │       └── custom_tool.py
+│   │   │   │   ├── flow/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── crews/
+│   │   │   │   │   │   └── poem_crew/
+│   │   │   │   │   │       ├── __init__.py
+│   │   │   │   │   │       ├── config/
+│   │   │   │   │   │       │   ├── agents.yaml
+│   │   │   │   │   │       │   └── tasks.yaml
+│   │   │   │   │   │       └── poem_crew.py
+│   │   │   │   │   ├── main.py
+│   │   │   │   │   └── tools/
+│   │   │   │   │       ├── __init__.py
+│   │   │   │   │       └── custom_tool.py
+│   │   │   │   └── tool/
+│   │   │   │       └── src/
+│   │   │   │           └── {{folder_name}}/
+│   │   │   │               ├── __init__.py
+│   │   │   │               └── tool.py
+│   │   │   ├── tools/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── main.py
+│   │   │   ├── train_crew.py
+│   │   │   ├── update_crew.py
+│   │   │   ├── utils.py
+│   │   │   └── version.py
+│   │   ├── crew.py
+│   │   ├── crews/
+│   │   │   ├── __init__.py
+│   │   │   └── crew_output.py
+│   │   ├── experimental/
+│   │   │   ├── __init__.py
+│   │   │   └── evaluation/
+│   │   │       ├── __init__.py
+│   │   │       ├── agent_evaluator.py
+│   │   │       ├── base_evaluator.py
+│   │   │       ├── evaluation_display.py
+│   │   │       ├── evaluation_listener.py
+│   │   │       ├── experiment/
+│   │   │       │   ├── __init__.py
+│   │   │       │   ├── result.py
+│   │   │       │   ├── result_display.py
+│   │   │       │   └── runner.py
+│   │   │       ├── json_parser.py
+│   │   │       ├── metrics/
+│   │   │       │   ├── __init__.py
+│   │   │       │   ├── goal_metrics.py
+│   │   │       │   ├── reasoning_metrics.py
+│   │   │       │   ├── semantic_quality_metrics.py
+│   │   │       │   └── tools_metrics.py
+│   │   │       └── testing.py
+│   │   ├── flow/
+│   │   │   ├── __init__.py
+│   │   │   ├── assets/
+│   │   │   │   ├── crewai_flow_visual_template.html
+│   │   │   │   └── crewai_logo.svg
+│   │   │   ├── config.py
+│   │   │   ├── flow.py
+│   │   │   ├── flow_trackable.py
+│   │   │   ├── flow_visualizer.py
+│   │   │   ├── html_template_handler.py
+│   │   │   ├── legend_generator.py
+│   │   │   ├── path_utils.py
+│   │   │   ├── persistence/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── base.py
+│   │   │   │   ├── decorators.py
+│   │   │   │   └── sqlite.py
+│   │   │   ├── types.py
+│   │   │   ├── utils.py
+│   │   │   └── visualization_utils.py
+│   │   ├── knowledge/
+│   │   │   ├── __init__.py
+│   │   │   ├── knowledge.py
+│   │   │   ├── knowledge_config.py
+│   │   │   ├── source/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── base_file_knowledge_source.py
+│   │   │   │   ├── base_knowledge_source.py
+│   │   │   │   ├── crew_docling_source.py
+│   │   │   │   ├── csv_knowledge_source.py
+│   │   │   │   ├── excel_knowledge_source.py
+│   │   │   │   ├── json_knowledge_source.py
+│   │   │   │   ├── pdf_knowledge_source.py
+│   │   │   │   ├── string_knowledge_source.py
+│   │   │   │   └── text_file_knowledge_source.py
+│   │   │   ├── storage/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── base_knowledge_storage.py
+│   │   │   │   └── knowledge_storage.py
+│   │   │   └── utils/
+│   │   │       ├── __init__.py
+│   │   │       └── knowledge_utils.py
+│   │   ├── lite_agent.py
+│   │   ├── llm.py
+│   │   ├── llms/
+│   │   │   ├── __init__.py
+│   │   │   ├── base_llm.py
+│   │   │   └── third_party/
+│   │   │       ├── __init__.py
+│   │   │       └── ai_suite.py
+│   │   ├── memory/
+│   │   │   ├── __init__.py
+│   │   │   ├── contextual/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── contextual_memory.py
+│   │   │   ├── entity/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── entity_memory.py
+│   │   │   │   └── entity_memory_item.py
+│   │   │   ├── external/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── external_memory.py
+│   │   │   │   └── external_memory_item.py
+│   │   │   ├── long_term/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── long_term_memory.py
+│   │   │   │   └── long_term_memory_item.py
+│   │   │   ├── memory.py
+│   │   │   ├── short_term/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── short_term_memory.py
+│   │   │   │   └── short_term_memory_item.py
+│   │   │   └── storage/
+│   │   │       ├── __init__.py
+│   │   │       ├── interface.py
+│   │   │       ├── kickoff_task_outputs_storage.py
+│   │   │       ├── ltm_sqlite_storage.py
+│   │   │       ├── mem0_storage.py
+│   │   │       └── rag_storage.py
+│   │   ├── process.py
+│   │   ├── project/
+│   │   │   ├── __init__.py
+│   │   │   ├── annotations.py
+│   │   │   ├── crew_base.py
+│   │   │   └── utils.py
+│   │   ├── rag/
+│   │   │   ├── __init__.py
+│   │   │   ├── chromadb/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── client.py
+│   │   │   │   ├── types.py
+│   │   │   │   └── utils.py
+│   │   │   ├── core/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── base_client.py
+│   │   │   │   └── base_provider.py
+│   │   │   ├── embeddings/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── configurator.py
+│   │   │   │   ├── factory.py
+│   │   │   │   └── types.py
+│   │   │   ├── storage/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── base_rag_storage.py
+│   │   │   └── types.py
+│   │   ├── security/
+│   │   │   ├── __init__.py
+│   │   │   ├── fingerprint.py
+│   │   │   └── security_config.py
+│   │   ├── task.py
+│   │   ├── tasks/
+│   │   │   ├── __init__.py
+│   │   │   ├── conditional_task.py
+│   │   │   ├── hallucination_guardrail.py
+│   │   │   ├── llm_guardrail.py
+│   │   │   ├── output_format.py
+│   │   │   └── task_output.py
+│   │   ├── telemetry/
+│   │   │   ├── __init__.py
+│   │   │   ├── constants.py
+│   │   │   └── telemetry.py
+│   │   ├── tools/
+│   │   │   ├── __init__.py
+│   │   │   ├── agent_tools/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── add_image_tool.py
+│   │   │   │   ├── agent_tools.py
+│   │   │   │   ├── ask_question_tool.py
+│   │   │   │   ├── base_agent_tools.py
+│   │   │   │   └── delegate_work_tool.py
+│   │   │   ├── base_tool.py
+│   │   │   ├── cache_tools/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── cache_tools.py
+│   │   │   ├── structured_tool.py
+│   │   │   ├── tool_calling.py
+│   │   │   ├── tool_types.py
+│   │   │   └── tool_usage.py
+│   │   ├── translations/
+│   │   │   └── en.json
+│   │   ├── types/
+│   │   │   ├── __init__.py
+│   │   │   ├── crew_chat.py
+│   │   │   ├── hitl.py
+│   │   │   └── usage_metrics.py
+│   │   └── utilities/
+│   │       ├── __init__.py
+│   │       ├── agent_utils.py
+│   │       ├── chromadb.py
+│   │       ├── config.py
+│   │       ├── constants.py
+│   │       ├── converter.py
+│   │       ├── crew/
+│   │       │   ├── __init__.py
+│   │       │   ├── crew_context.py
+│   │       │   └── models.py
+│   │       ├── crew_json_encoder.py
+│   │       ├── crew_pydantic_output_parser.py
+│   │       ├── errors.py
+│   │       ├── evaluators/
+│   │       │   ├── __init__.py
+│   │       │   ├── crew_evaluator_handler.py
+│   │       │   └── task_evaluator.py
+│   │       ├── events/
+│   │       │   ├── __init__.py
+│   │       │   ├── agent_events.py
+│   │       │   ├── base_event_listener.py
+│   │       │   ├── base_events.py
+│   │       │   ├── crew_events.py
+│   │       │   ├── crewai_event_bus.py
+│   │       │   ├── event_listener.py
+│   │       │   ├── event_types.py
+│   │       │   ├── flow_events.py
+│   │       │   ├── knowledge_events.py
+│   │       │   ├── listeners/
+│   │       │   │   ├── memory_listener.py
+│   │       │   │   └── tracing/
+│   │       │   │       ├── __init__.py
+│   │       │   │       ├── trace_batch_manager.py
+│   │       │   │       ├── trace_listener.py
+│   │       │   │       ├── types.py
+│   │       │   │       └── utils.py
+│   │       │   ├── llm_events.py
+│   │       │   ├── llm_guardrail_events.py
+│   │       │   ├── memory_events.py
+│   │       │   ├── reasoning_events.py
+│   │       │   ├── task_events.py
+│   │       │   ├── third_party/
+│   │       │   │   └── __init__.py
+│   │       │   ├── tool_usage_events.py
+│   │       │   └── utils/
+│   │       │       ├── __init__.py
+│   │       │       └── console_formatter.py
+│   │       ├── exceptions/
+│   │       │   ├── __init__.py
+│   │       │   └── context_window_exceeding_exception.py
+│   │       ├── file_handler.py
+│   │       ├── formatter.py
+│   │       ├── guardrail.py
+│   │       ├── i18n.py
+│   │       ├── internal_instructor.py
+│   │       ├── llm_utils.py
+│   │       ├── logger.py
+│   │       ├── parser.py
+│   │       ├── paths.py
+│   │       ├── planning_handler.py
+│   │       ├── printer.py
+│   │       ├── prompts.py
+│   │       ├── pydantic_schema_parser.py
+│   │       ├── reasoning_handler.py
+│   │       ├── rpm_controller.py
+│   │       ├── serialization.py
+│   │       ├── string_utils.py
+│   │       ├── task_output_storage_handler.py
+│   │       ├── token_counter_callback.py
+│   │       ├── tool_utils.py
+│   │       ├── training_converter.py
+│   │       └── training_handler.py
+│   └── state-machine/
+│       └── langgraph/
+│           ├── _internal/
+│           │   ├── __init__.py
+│           │   ├── _cache.py
+│           │   ├── _config.py
+│           │   ├── _constants.py
+│           │   ├── _fields.py
+│           │   ├── _future.py
+│           │   ├── _pydantic.py
+│           │   ├── _queue.py
+│           │   ├── _retry.py
+│           │   ├── _runnable.py
+│           │   ├── _scratchpad.py
+│           │   └── _typing.py
+│           ├── channels/
+│           │   ├── __init__.py
+│           │   ├── any_value.py
+│           │   ├── base.py
+│           │   ├── binop.py
+│           │   ├── ephemeral_value.py
+│           │   ├── last_value.py
+│           │   ├── named_barrier_value.py
+│           │   ├── topic.py
+│           │   └── untracked_value.py
+│           ├── config.py
+│           ├── constants.py
+│           ├── errors.py
+│           ├── func/
+│           │   └── __init__.py
+│           ├── graph/
+│           │   ├── __init__.py
+│           │   ├── _branch.py
+│           │   ├── _node.py
+│           │   ├── message.py
+│           │   ├── state.py
+│           │   └── ui.py
+│           ├── managed/
+│           │   ├── __init__.py
+│           │   ├── base.py
+│           │   └── is_last_step.py
+│           ├── pregel/
+│           │   ├── __init__.py
+│           │   ├── _algo.py
+│           │   ├── _call.py
+│           │   ├── _checkpoint.py
+│           │   ├── _config.py
+│           │   ├── _draw.py
+│           │   ├── _executor.py
+│           │   ├── _io.py
+│           │   ├── _log.py
+│           │   ├── _loop.py
+│           │   ├── _messages.py
+│           │   ├── _read.py
+│           │   ├── _retry.py
+│           │   ├── _runner.py
+│           │   ├── _utils.py
+│           │   ├── _validate.py
+│           │   ├── _write.py
+│           │   ├── debug.py
+│           │   ├── main.py
+│           │   ├── protocol.py
+│           │   ├── remote.py
+│           │   └── types.py
+│           ├── py.typed
+│           ├── runtime.py
+│           ├── types.py
+│           ├── typing.py
+│           ├── utils/
+│           │   ├── __init__.py
+│           │   ├── config.py
+│           │   └── runnable.py
+│           ├── version.py
+│           └── warnings.py
+├── docs/
+│   └── rust_boundary.md
+├── engine_chunk_aa
+├── engine_chunk_ab
+├── engine_chunk_ac
+├── engine_chunk_ad
+├── git_log.txt
+├── git_status.txt
+├── git_status_post_recovery.txt
+├── loop_chunk_aa
+├── main.py
+├── make_work_orders_phase3_plus.ps1
+├── out.txt
+├── run_voice.py
+├── run_voice_gui.py
+├── rust/
+│   ├── replay_aggregator/
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   │       └── lib.rs
+│   └── retrieval_ranker/
+│       ├── Cargo.toml
+│       └── src/
+│           └── lib.rs
+├── scripts/
+│   └── generate_samples.py
+├── spec/
+│   ├── cognition_engine_spine_v0.md
+│   ├── contracts_v0.md
+│   ├── execution_gateway_policy_v0.md
+│   ├── failure_classes_v0.md
+│   ├── failure_retry_policy_v0_1.md
+│   ├── failure_taxonomy_v0_1.md
+│   ├── performance_trace_v0.md
+│   ├── retrieval_scoring_v0_1.md
+│   └── tag_schema_v0.md
+├── specimens/
+│   ├── dspy_run/
+│   │   ├── eventlog.jsonl
+│   │   ├── meta.json
+│   │   └── trace.jsonl
+│   └── fallback_run/
+│       ├── eventlog.jsonl
+│       ├── memory.jsonl
+│       ├── meta.json
+│       └── trace.jsonl
+├── src/
+│   ├── __init__.py
+│   ├── agents/
+│   │   ├── __init__.py
+│   │   ├── retrieval_agent.py
+│   │   ├── synthesis_agent.py
+│   │   ├── tagger_agent.py
+│   │   └── writeback_agent.py
+│   ├── cli.py
+│   ├── cognition/
+│   │   ├── __init__.py
+│   │   ├── backends/
+│   │   │   ├── __init__.py
+│   │   │   ├── dspy_backend.py
+│   │   │   └── fallback_backend.py
+│   │   ├── config.py
+│   │   ├── engine.py
+│   │   └── interfaces.py
+│   ├── cognition_loop.py
+│   ├── contracts/
+│   │   ├── __init__.py
+│   │   ├── errors.py
+│   │   ├── migration.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   └── validators.py
+│   ├── contracts_old.py
+│   ├── eventlog.py
+│   ├── execution/
+│   │   ├── __init__.py
+│   │   ├── classifier.py
+│   │   └── gateway.py
+│   ├── failures/
+│   │   ├── classifier.py
+│   │   ├── contracts.py
+│   │   └── retry.py
+│   ├── memory/
+│   │   └── backends/
+│   │       ├── __init__.py
+│   │       └── zep_backend.py
+│   ├── memory_adapter.py
+│   ├── orchestration/
+│   │   ├── __init__.py
+│   │   └── router.py
+│   ├── replay/
+│   │   ├── __init__.py
+│   │   └── replayer.py
+│   ├── retrieval/
+│   │   ├── __init__.py
+│   │   ├── retriever.py
+│   │   └── scoring.py
+│   ├── routing/
+│   │   ├── contracts.py
+│   │   └── router.py
+│   ├── runs/
+│   │   ├── __init__.py
+│   │   ├── session.py
+│   │   └── state.py
+│   ├── rust_wrappers/
+│   │   ├── __init__.py
+│   │   ├── aggregator.py
+│   │   └── ranker.py
+│   ├── tagger.py
+│   ├── tools/
+│   │   ├── contracts.py
+│   │   ├── gateway.py
+│   │   ├── policy.py
+│   │   ├── registry.py
+│   │   └── standard.py
+│   └── trace.py
+├── test_errors.txt
+├── test_output.txt
+├── tests/
+│   ├── __init__.py
+│   ├── test_cli_smoke.py
+│   ├── test_contracts.py
+│   ├── test_degraded.py
+│   ├── test_durability.py
+│   ├── test_engine.py
+│   ├── test_engine_e2e.py
+│   ├── test_eventlog.py
+│   ├── test_exec_classifier.py
+│   ├── test_exec_gateway.py
+│   ├── test_failures.py
+│   ├── test_gateway.py
+│   ├── test_import_verification.py
+│   ├── test_live_backends.py
+│   ├── test_memory_adapter.py
+│   ├── test_migration.py
+│   ├── test_retrieval.py
+│   ├── test_router.py
+│   ├── test_router_smoke.py
+│   ├── test_rust_parity.py
+│   └── test_smoke.py
+├── tree.txt
+└── work_orders/
+    ├── antigravity/
+    │   ├── 001_contracts.md
+    │   ├── 002_tag_schema_v0_1.md
+    │   ├── 003_memory_lanes_policy_v0.md
+    │   ├── 004_failure_retry_policy_v0.md
+    │   ├── 005_retrieval_scoring_v0_1_spec.md
+    │   ├── 006_event_audit_invariants_v0_spec.md
+    │   ├── 007_dspy_memory_contract_v0_spec.md
+    │   ├── 008_memory_lanes_policy_v0_1_spec.md
+    │   ├── 009_failure_retry_policy_v0_1_spec.md
+    │   ├── 010_tag_weighting_and_performance_indexing.md
+    │   └── 011_trimming_playbook.md
+    └── codeex/
+        ├── 001_contracts_impl.md
+        ├── 002_cognition_loop.md
+        ├── 003_correctness_hardening.md
+        ├── 004_small_agents_router.md
+        ├── 005_execution_gateway.md
+        ├── 006_minimal_cli.md
+        ├── 007_cognition_engine_always_on_spine.md
+        ├── 008_run_sessions_and_meta_json.md
+        ├── 009_retriever_scoring_and_explanations.md
+        ├── 010_small_agents_router_v1.md
+        ├── 011_writeback_lanes_policy_v0_1.md
+        ├── 012_execution_gateway_v1.md
+        ├── 013_resilience_retry_policy_v1.md
+        ├── 014_replay_and_export_v1.md
+        ├── 015_ci_workflow_tests.md
+        ├── 016_dspy_zep_fusion_prototype.md
+        └── 017_rust_candidates_boundary.md
+
+258 directories, 1144 files
