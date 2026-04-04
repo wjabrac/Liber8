@@ -1,0 +1,18 @@
+# LIBR8 Current State Reconciliation
+
+## 1) Already Fixed
+- **`main.py` ignores CLI arguments**: Fixed. `main.py` now correctly passes `sys.argv[1:]` to `cli_main()`. Verified by code inspection and commit history (`d41116a`).
+- **`postgres_store.py` summary crashes on connection failure**: Fixed. `PostgresServiceStateStore.summary()` now includes a try/except block that catches `psycopg.Error` (and other exceptions) and returns a degraded state instead of crashing. Verified by `test_health_reports_planned_postgres_backend` passing.
+- **`test_live_postgres.py` assumes running local DB**: Fixed. Tests are now decorated with `@unittest.skipUnless(os.environ.get("LIVE_POSTGRES"), ...)` to prevent deterministic failures on environments without a local DB.
+- **Missing `pytest` in virtual environment**: Resolved. `pytest` version 8.4.1 is present and functional in the environment.
+
+## 2) Partially Fixed or Divergent
+- **Test suite execution**: `ENVIRONMENT.md` and `runtime_baseline.txt` had conflicting information about `pytest` vs `unittest`. Currently, `python -m unittest discover tests` is the recommended and working path, though `pytest` also works.
+
+## 3) Still Open
+- **`test_live.sh` assumes service runs on :8080 already**: The script remains a simple set of `curl` commands and fails if the service is not manually started beforehand.
+- **Rust extension not built**: `test_rust_parity` is skipped because the Rust extension is not built/available.
+- **Service readiness/hardening**: While the summary crash is fixed, the service could still benefit from more robust self-healing or startup checks.
+
+# Chosen Next Item
+Implement **`test_live.sh` self-start behavior**. This will allow for a truly "live" smoke test that doesn't require manual service orchestration, improving local developer velocity and CI readiness.
