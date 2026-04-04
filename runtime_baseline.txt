@@ -1,0 +1,331 @@
+=== COMMAND ===
+./.venv/bin/python main.py --help
+--- STATUS ---
+PASS (exit 0)
+--- ERROR ---
+<none>
+--- OUTPUT ---
+Starting CognitionEngine (backend: fallback) for task: 'run cognition loop'
+Run completed with outcome: success
+Event ID: 2248874f-0be0-456a-a4ca-5041fc6c6fe1
+Run artifacts: .storage/.runs/d234a003-d6c0-4bdb-a083-5799c6a85b3a
+
+=== COMMAND ===
+./.venv/bin/python -m src.cli healthcheck --storage-dir .storage --backend fallback
+--- STATUS ---
+PASS (exit 0)
+--- ERROR ---
+<none>
+--- OUTPUT ---
+--- LIBR8 HEALTHCHECK ---
+python: 3.10.19
+platform: Linux-6.12.47-x86_64-with-glibc2.39
+storage_dir: /workspace/Liber8/.storage
+runs_dir: /workspace/Liber8/.storage/.runs
+runs_dir_writable: True
+run_count: 1
+default_allowlist: /workspace/Liber8
+default_allowlist_exists: True
+tool_policy_mode: write
+network_allowed: False
+backend: fallback
+tool_protocol: mcp
+execution_isolation_target: none
+observability_spans: ai.agent.invoke,ai.tool.invoke,ai.llm.invoke
+versioning_mode: composite
+healthcheck_status: ok
+
+=== COMMAND ===
+./.venv/bin/python -m src.cli service-health --storage-dir .storage --backend fallback
+--- STATUS ---
+PASS (exit 0)
+--- ERROR ---
+<none>
+--- OUTPUT ---
+{
+  "approval_queue_depth": 0,
+  "backend": "fallback",
+  "default_allowlist": "/workspace/Liber8",
+  "execution_isolation_backend": "none",
+  "export_job_count": 0,
+  "require_isolation_for_writes": false,
+  "run_count": 1,
+  "service_type": "api",
+  "state_store": {
+    "backend": "memory",
+    "records": 0,
+    "statuses": {}
+  },
+  "status": "ok",
+  "storage_dir": "/workspace/Liber8/.storage"
+}
+
+=== COMMAND ===
+./.venv/bin/python -m unittest tests.test_cli_smoke tests.test_service_http tests.test_smoke -v
+--- STATUS ---
+PASS (exit 0)
+--- ERROR ---
+<none>
+--- OUTPUT ---
+test_cli_and_main_share_run_interface (tests.test_cli_smoke.TestCliSmoke) ... ok
+test_admin_routes (tests.test_service_http.TestServiceHttp) ... ok
+test_approval_routes (tests.test_service_http.TestServiceHttp) ... {"event": "approval_submitted", "request_id": "2ff97591-6259-4af4-a661-d89bb99c2495", "scope": "tool.write", "task_id": "task-1", "ts": "2026-04-04T11:36:40.399388+00:00"}
+{"event": "approval_resolved", "request_id": "2ff97591-6259-4af4-a661-d89bb99c2495", "status": "approved", "ts": "2026-04-04T11:36:40.399460+00:00"}
+ok
+test_export_routes (tests.test_service_http.TestServiceHttp) ... {"event": "task_submitted", "run_id": "a710ddbd-0184-466b-8209-8ff9c60ec4ad", "task": "summarize architecture", "task_id": "a710ddbd-0184-466b-8209-8ff9c60ec4ad", "ts": "2026-04-04T11:36:40.399944+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "a710ddbd-0184-466b-8209-8ff9c60ec4ad", "task_id": "a710ddbd-0184-466b-8209-8ff9c60ec4ad", "ts": "2026-04-04T11:36:40.419567+00:00"}
+{"event": "export_job_submitted", "job_id": "24a37a7b-be2e-4c64-8ed0-50b9882a95f5", "job_kind": "markdown_report", "run_id": "a710ddbd-0184-466b-8209-8ff9c60ec4ad", "ts": "2026-04-04T11:36:40.419651+00:00"}
+{"event": "export_job_completed", "job_id": "24a37a7b-be2e-4c64-8ed0-50b9882a95f5", "output_path": "/tmp/tmpshnnoice/.runs/a710ddbd-0184-466b-8209-8ff9c60ec4ad/report.md", "run_id": "a710ddbd-0184-466b-8209-8ff9c60ec4ad", "ts": "2026-04-04T11:36:40.420206+00:00"}
+ok
+test_health_route (tests.test_service_http.TestServiceHttp) ... ok
+test_run_submission_route (tests.test_service_http.TestServiceHttp) ... {"event": "task_submitted", "run_id": "9c799c6d-ecac-4fde-b946-d47785cf8433", "task": "summarize architecture", "task_id": "9c799c6d-ecac-4fde-b946-d47785cf8433", "ts": "2026-04-04T11:36:40.421293+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "9c799c6d-ecac-4fde-b946-d47785cf8433", "task_id": "9c799c6d-ecac-4fde-b946-d47785cf8433", "ts": "2026-04-04T11:36:40.449184+00:00"}
+ok
+test_cognition_loop_fallback_backend (tests.test_smoke.SmokeTest) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.117s
+
+OK
+
+=== COMMAND ===
+./.venv/bin/python -m unittest discover -s tests -v
+--- STATUS ---
+FAIL (exit 1)
+--- ERROR ---
+test_submit_and_resolve_approval (test_approval_queue.TestApprovalQueue) ... ok
+test_eventlog_roundtrip_preserves_enrichment_provenance (test_architecture_gap_fill.TestArchitectureGapFill) ... ok
+test_programming_task_records_plugins_enrichment_and_interpreter_tool (test_architecture_gap_fill.TestArchitectureGapFill) ... ok
+test_writeback_and_promotion_artifacts_and_multi_lane_memory_are_persisted (test_architecture_gap_fill.TestArchitectureGapFill) ... ok
+test_admin_snapshot_reports_redacted_config (test_cli_ops.TestCliOps) ... ok
+test_export_writes_report_with_key_sections (test_cli_ops.TestCliOps) ... ok
+test_healthcheck_reports_ready_local_runtime (test_cli_ops.TestCliOps) ... ok
+test_list_migrations_reports_sql_assets (test_cli_ops.TestCliOps) ... ok
+test_prune_runs_dry_run_preserves_artifacts (test_cli_ops.TestCliOps) ... ok
+test_prune_runs_removes_older_artifacts (test_cli_ops.TestCliOps) ... ok
+test_run_emits_run_manifest_artifact (test_cli_ops.TestCliOps) ... ok
+test_service_health_reports_api_shape (test_cli_ops.TestCliOps) ... ok
+test_cli_and_main_share_run_interface (test_cli_smoke.TestCliSmoke) ... ok
+test_event_record_json_roundtrip (test_contracts.ContractsTest) ... ok
+test_memory_block_validation (test_contracts.ContractsTest) ... ok
+test_writeback_package (test_contracts.ContractsTest) ... ok
+test_zep_outage_falls_back_to_local_memory (test_degraded.TestDegradedRecovery) ... ok
+test_resume_from_interruption (test_durability.TestCrashDurability) ... ok
+test_engine_run_produces_artifacts (test_engine.TestCognitionEngine) ... ok
+test_end_to_end_run_writes_core_artifacts (test_engine_e2e.TestEngineE2E) ... ok
+test_write_and_read (test_eventlog.EventLogTest) ... ok
+test_destructive_commands (test_exec_classifier.TestExecClassifier) ... ok
+test_network_commands (test_exec_classifier.TestExecClassifier) ... ok
+test_read_only_commands (test_exec_classifier.TestExecClassifier) ... ok
+test_allows_read_only_command (test_exec_gateway.TestExecGateway) ... ok
+test_approval_token_allows_command (test_exec_gateway.TestExecGateway) ... ok
+test_blocks_destructive_without_approval (test_exec_gateway.TestExecGateway) ... ok
+test_classifier_rate_limit (test_failures.TestFailures) ... ok
+test_classifier_validation_error (test_failures.TestFailures) ... ok
+test_retry_policy_rate_limit (test_failures.TestFailures) ... ok
+test_isolation_boundary_allows_write_execution (test_gateway.TestExecutionGateway) ... ok
+test_isolation_required_denies_without_boundary (test_gateway.TestExecutionGateway) ... ok
+test_missing_approval_denies_write (test_gateway.TestExecutionGateway) ... ok
+test_path_normalization_enforces_bounds (test_gateway.TestExecutionGateway) ... ok
+test_read_only_mode_denies_write_even_with_approval (test_gateway.TestExecutionGateway) ... ok
+test_dspy_backend_import (test_import_verification.TestImportVerification) ... ok
+test_fallback_backend_import (test_import_verification.TestImportVerification) ... ok
+test_interfaces_import (test_import_verification.TestImportVerification) ... ok
+test_zep_backend_import (test_import_verification.TestImportVerification) ... ok
+test_live_dspy_zep_run (test_live_backends.TestLiveBackends) ... skipped 'Live tests require RESTRICT_LIVE_TESTS=1'
+test_postgres_store_records_and_updates_run (test_live_postgres.TestLivePostgres) ... ERROR
+test_query_plan_limits_results (test_memory_adapter.TestFileSystemMemoryAdapter) ... ok
+test_read_filters_by_tags (test_memory_adapter.TestFileSystemMemoryAdapter) ... ok
+test_upcast_v0_event (test_migration.TestMigrationDiscipline) ... ok
+test_upcast_v0_trace (test_migration.TestMigrationDiscipline) ... ok
+test_open_interpreter_blocks_paths_outside_sandbox (test_open_interpreter_tool.TestOpenInterpreterTool) ... ok
+test_open_interpreter_executes_inside_declared_sandbox (test_open_interpreter_tool.TestOpenInterpreterTool) ... ok
+test_cli_and_main_accept_one_shared_interface (test_regressions_steps_2_5.TestRegressionsSteps2To5) ... ok
+test_eventlog_upcasts_only_on_read_boundary (test_regressions_steps_2_5.TestRegressionsSteps2To5) ... ok
+test_gateway_blocks_sibling_prefix_escape (test_regressions_steps_2_5.TestRegressionsSteps2To5) ... ok
+test_retry_actions_are_explicitly_applied (test_regressions_steps_2_5.TestRegressionsSteps2To5) ... ok
+test_benchmark_command_performs_real_work (test_regressions_steps_6_9.TestRegressionsSteps6To9) ... ok
+test_path_allowlists_are_project_root_derived_or_env_driven (test_regressions_steps_6_9.TestRegressionsSteps6To9) ... FAIL
+test_router_wrapper_uses_canonical_engine (test_regressions_steps_6_9.TestRegressionsSteps6To9) ... ok
+test_run_command_prints_exact_artifact_directory (test_regressions_steps_6_9.TestRegressionsSteps6To9) ... ok
+test_age_and_pin_rules (test_retention_policy.TestRetentionPolicy) ... ok
+test_diversity_and_overlap_scoring (test_retrieval.TestRetrievalScoring) ... ok
+test_fake_backend_route (test_router.TestRouter) ... ok
+test_multi_agent_route (test_router.TestRouter) ... ok
+test_no_agent_route (test_router.TestRouter) ... ok
+test_router_runs_via_canonical_engine (test_router_smoke.TestRouterSmoke) ... ok
+test_ranker_parity (test_rust_parity.TestRustParity) ... skipped 'Rust extension not built'
+test_admin_snapshot_includes_public_config (test_service_app.TestServiceApp) ... ok
+test_export_job_processes_report (test_service_app.TestServiceApp) ... Runs removed: 2
+Removed: /tmp/tmple1xw1nx/.runs/18f1f31a-1703-4307-89fd-5573a65e6132
+Removed: /tmp/tmple1xw1nx/.runs/01ad0b3d-7b65-4017-ae8a-56f2a001f92b
+{"event": "task_submitted", "run_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "task": "summarize architecture", "task_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "ts": "2026-04-04T11:36:43.029411+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "task_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "ts": "2026-04-04T11:36:43.047277+00:00"}
+{"event": "export_job_submitted", "job_id": "6734f48f-40dc-4bb4-939b-3711e64bec56", "job_kind": "markdown_report", "run_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "ts": "2026-04-04T11:36:43.047338+00:00"}
+{"event": "export_job_completed", "job_id": "6734f48f-40dc-4bb4-939b-3711e64bec56", "output_path": "/tmp/tmpqq3e03vy/.runs/b7389ee1-d5e6-4859-8f14-7eef3381a510/report.md", "run_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "ts": "2026-04-04T11:36:43.047752+00:00"}
+ok
+test_health_reports_api_defaults (test_service_app.TestServiceApp) ... ok
+test_health_reports_planned_postgres_backend (test_service_app.TestServiceApp) ... ok
+test_submit_task_records_run (test_service_app.TestServiceApp) ... {"event": "task_submitted", "run_id": "d1b5b283-7c61-4c6b-aea5-ae858f6b21af", "task": "summarize architecture", "task_id": "d1b5b283-7c61-4c6b-aea5-ae858f6b21af", "ts": "2026-04-04T11:36:43.049089+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "d1b5b283-7c61-4c6b-aea5-ae858f6b21af", "task_id": "d1b5b283-7c61-4c6b-aea5-ae858f6b21af", "ts": "2026-04-04T11:36:43.067473+00:00"}
+ok
+test_index_run_artifacts_falls_back_to_existing_files (test_service_artifacts.TestServiceArtifacts) ... ok
+test_index_run_artifacts_prefers_manifest (test_service_artifacts.TestServiceArtifacts) ... ok
+test_admin_routes (test_service_http.TestServiceHttp) ... ok
+test_approval_routes (test_service_http.TestServiceHttp) ... {"event": "approval_submitted", "request_id": "698bfccb-60fb-43b5-a0e1-cd1a43fc742f", "scope": "tool.write", "task_id": "task-1", "ts": "2026-04-04T11:36:43.069843+00:00"}
+{"event": "approval_resolved", "request_id": "698bfccb-60fb-43b5-a0e1-cd1a43fc742f", "status": "approved", "ts": "2026-04-04T11:36:43.069941+00:00"}
+ok
+test_export_routes (test_service_http.TestServiceHttp) ... {"event": "task_submitted", "run_id": "38b944ad-88b5-472f-bf19-d02532879338", "task": "summarize architecture", "task_id": "38b944ad-88b5-472f-bf19-d02532879338", "ts": "2026-04-04T11:36:43.070371+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "38b944ad-88b5-472f-bf19-d02532879338", "task_id": "38b944ad-88b5-472f-bf19-d02532879338", "ts": "2026-04-04T11:36:43.089892+00:00"}
+{"event": "export_job_submitted", "job_id": "fed6749c-bf29-45d2-b6a3-ca7f32f79bc4", "job_kind": "markdown_report", "run_id": "38b944ad-88b5-472f-bf19-d02532879338", "ts": "2026-04-04T11:36:43.089959+00:00"}
+{"event": "export_job_completed", "job_id": "fed6749c-bf29-45d2-b6a3-ca7f32f79bc4", "output_path": "/tmp/tmpb__84a1i/.runs/38b944ad-88b5-472f-bf19-d02532879338/report.md", "run_id": "38b944ad-88b5-472f-bf19-d02532879338", "ts": "2026-04-04T11:36:43.090403+00:00"}
+ok
+test_health_route (test_service_http.TestServiceHttp) ... ok
+test_run_submission_route (test_service_http.TestServiceHttp) ... {"event": "task_submitted", "run_id": "6f19553e-370a-4e76-bd08-0f26739e3dd2", "task": "summarize architecture", "task_id": "6f19553e-370a-4e76-bd08-0f26739e3dd2", "ts": "2026-04-04T11:36:43.091698+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "6f19553e-370a-4e76-bd08-0f26739e3dd2", "task_id": "6f19553e-370a-4e76-bd08-0f26739e3dd2", "ts": "2026-04-04T11:36:43.110223+00:00"}
+ok
+test_cognition_loop_fallback_backend (test_smoke.SmokeTest) ... ok
+
+======================================================================
+ERROR: test_postgres_store_records_and_updates_run (test_live_postgres.TestLivePostgres)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/Liber8/tests/test_live_postgres.py", line 23, in test_postgres_store_records_and_updates_run
+    result = service.submit_task("live postgres test task")
+  File "/workspace/Liber8/src/service/app.py", line 47, in submit_task
+    self.state_store.record_submission(record)
+  File "/workspace/Liber8/src/service/state.py", line 60, in record_submission
+    raise NotImplementedError("PostgreSQL state store implementation is not wired yet.")
+NotImplementedError: PostgreSQL state store implementation is not wired yet.
+
+======================================================================
+FAIL: test_path_allowlists_are_project_root_derived_or_env_driven (test_regressions_steps_6_9.TestRegressionsSteps6To9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/Liber8/tests/test_regressions_steps_6_9.py", line 25, in test_path_allowlists_are_project_root_derived_or_env_driven
+    self.assertTrue(default_config.path_allowlists[0].endswith("LIBR8"))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 75 tests in 1.103s
+
+FAILED (failures=1, errors=1, skipped=2)
+--- OUTPUT ---
+test_submit_and_resolve_approval (test_approval_queue.TestApprovalQueue) ... ok
+test_eventlog_roundtrip_preserves_enrichment_provenance (test_architecture_gap_fill.TestArchitectureGapFill) ... ok
+test_programming_task_records_plugins_enrichment_and_interpreter_tool (test_architecture_gap_fill.TestArchitectureGapFill) ... ok
+test_writeback_and_promotion_artifacts_and_multi_lane_memory_are_persisted (test_architecture_gap_fill.TestArchitectureGapFill) ... ok
+test_admin_snapshot_reports_redacted_config (test_cli_ops.TestCliOps) ... ok
+test_export_writes_report_with_key_sections (test_cli_ops.TestCliOps) ... ok
+test_healthcheck_reports_ready_local_runtime (test_cli_ops.TestCliOps) ... ok
+test_list_migrations_reports_sql_assets (test_cli_ops.TestCliOps) ... ok
+test_prune_runs_dry_run_preserves_artifacts (test_cli_ops.TestCliOps) ... ok
+test_prune_runs_removes_older_artifacts (test_cli_ops.TestCliOps) ... ok
+test_run_emits_run_manifest_artifact (test_cli_ops.TestCliOps) ... ok
+test_service_health_reports_api_shape (test_cli_ops.TestCliOps) ... ok
+test_cli_and_main_share_run_interface (test_cli_smoke.TestCliSmoke) ... ok
+test_event_record_json_roundtrip (test_contracts.ContractsTest) ... ok
+test_memory_block_validation (test_contracts.ContractsTest) ... ok
+test_writeback_package (test_contracts.ContractsTest) ... ok
+test_zep_outage_falls_back_to_local_memory (test_degraded.TestDegradedRecovery) ... ok
+test_resume_from_interruption (test_durability.TestCrashDurability) ... ok
+test_engine_run_produces_artifacts (test_engine.TestCognitionEngine) ... ok
+test_end_to_end_run_writes_core_artifacts (test_engine_e2e.TestEngineE2E) ... ok
+test_write_and_read (test_eventlog.EventLogTest) ... ok
+test_destructive_commands (test_exec_classifier.TestExecClassifier) ... ok
+test_network_commands (test_exec_classifier.TestExecClassifier) ... ok
+test_read_only_commands (test_exec_classifier.TestExecClassifier) ... ok
+test_allows_read_only_command (test_exec_gateway.TestExecGateway) ... ok
+test_approval_token_allows_command (test_exec_gateway.TestExecGateway) ... ok
+test_blocks_destructive_without_approval (test_exec_gateway.TestExecGateway) ... ok
+test_classifier_rate_limit (test_failures.TestFailures) ... ok
+test_classifier_validation_error (test_failures.TestFailures) ... ok
+test_retry_policy_rate_limit (test_failures.TestFailures) ... ok
+test_isolation_boundary_allows_write_execution (test_gateway.TestExecutionGateway) ... ok
+test_isolation_required_denies_without_boundary (test_gateway.TestExecutionGateway) ... ok
+test_missing_approval_denies_write (test_gateway.TestExecutionGateway) ... ok
+test_path_normalization_enforces_bounds (test_gateway.TestExecutionGateway) ... ok
+test_read_only_mode_denies_write_even_with_approval (test_gateway.TestExecutionGateway) ... ok
+test_dspy_backend_import (test_import_verification.TestImportVerification) ... ok
+test_fallback_backend_import (test_import_verification.TestImportVerification) ... ok
+test_interfaces_import (test_import_verification.TestImportVerification) ... ok
+test_zep_backend_import (test_import_verification.TestImportVerification) ... ok
+test_live_dspy_zep_run (test_live_backends.TestLiveBackends) ... skipped 'Live tests require RESTRICT_LIVE_TESTS=1'
+test_postgres_store_records_and_updates_run (test_live_postgres.TestLivePostgres) ... ERROR
+test_query_plan_limits_results (test_memory_adapter.TestFileSystemMemoryAdapter) ... ok
+test_read_filters_by_tags (test_memory_adapter.TestFileSystemMemoryAdapter) ... ok
+test_upcast_v0_event (test_migration.TestMigrationDiscipline) ... ok
+test_upcast_v0_trace (test_migration.TestMigrationDiscipline) ... ok
+test_open_interpreter_blocks_paths_outside_sandbox (test_open_interpreter_tool.TestOpenInterpreterTool) ... ok
+test_open_interpreter_executes_inside_declared_sandbox (test_open_interpreter_tool.TestOpenInterpreterTool) ... ok
+test_cli_and_main_accept_one_shared_interface (test_regressions_steps_2_5.TestRegressionsSteps2To5) ... ok
+test_eventlog_upcasts_only_on_read_boundary (test_regressions_steps_2_5.TestRegressionsSteps2To5) ... ok
+test_gateway_blocks_sibling_prefix_escape (test_regressions_steps_2_5.TestRegressionsSteps2To5) ... ok
+test_retry_actions_are_explicitly_applied (test_regressions_steps_2_5.TestRegressionsSteps2To5) ... ok
+test_benchmark_command_performs_real_work (test_regressions_steps_6_9.TestRegressionsSteps6To9) ... ok
+test_path_allowlists_are_project_root_derived_or_env_driven (test_regressions_steps_6_9.TestRegressionsSteps6To9) ... FAIL
+test_router_wrapper_uses_canonical_engine (test_regressions_steps_6_9.TestRegressionsSteps6To9) ... ok
+test_run_command_prints_exact_artifact_directory (test_regressions_steps_6_9.TestRegressionsSteps6To9) ... ok
+test_age_and_pin_rules (test_retention_policy.TestRetentionPolicy) ... ok
+test_diversity_and_overlap_scoring (test_retrieval.TestRetrievalScoring) ... ok
+test_fake_backend_route (test_router.TestRouter) ... ok
+test_multi_agent_route (test_router.TestRouter) ... ok
+test_no_agent_route (test_router.TestRouter) ... ok
+test_router_runs_via_canonical_engine (test_router_smoke.TestRouterSmoke) ... ok
+test_ranker_parity (test_rust_parity.TestRustParity) ... skipped 'Rust extension not built'
+test_admin_snapshot_includes_public_config (test_service_app.TestServiceApp) ... ok
+test_export_job_processes_report (test_service_app.TestServiceApp) ... Runs removed: 2
+Removed: /tmp/tmple1xw1nx/.runs/18f1f31a-1703-4307-89fd-5573a65e6132
+Removed: /tmp/tmple1xw1nx/.runs/01ad0b3d-7b65-4017-ae8a-56f2a001f92b
+{"event": "task_submitted", "run_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "task": "summarize architecture", "task_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "ts": "2026-04-04T11:36:43.029411+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "task_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "ts": "2026-04-04T11:36:43.047277+00:00"}
+{"event": "export_job_submitted", "job_id": "6734f48f-40dc-4bb4-939b-3711e64bec56", "job_kind": "markdown_report", "run_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "ts": "2026-04-04T11:36:43.047338+00:00"}
+{"event": "export_job_completed", "job_id": "6734f48f-40dc-4bb4-939b-3711e64bec56", "output_path": "/tmp/tmpqq3e03vy/.runs/b7389ee1-d5e6-4859-8f14-7eef3381a510/report.md", "run_id": "b7389ee1-d5e6-4859-8f14-7eef3381a510", "ts": "2026-04-04T11:36:43.047752+00:00"}
+ok
+test_health_reports_api_defaults (test_service_app.TestServiceApp) ... ok
+test_health_reports_planned_postgres_backend (test_service_app.TestServiceApp) ... ok
+test_submit_task_records_run (test_service_app.TestServiceApp) ... {"event": "task_submitted", "run_id": "d1b5b283-7c61-4c6b-aea5-ae858f6b21af", "task": "summarize architecture", "task_id": "d1b5b283-7c61-4c6b-aea5-ae858f6b21af", "ts": "2026-04-04T11:36:43.049089+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "d1b5b283-7c61-4c6b-aea5-ae858f6b21af", "task_id": "d1b5b283-7c61-4c6b-aea5-ae858f6b21af", "ts": "2026-04-04T11:36:43.067473+00:00"}
+ok
+test_index_run_artifacts_falls_back_to_existing_files (test_service_artifacts.TestServiceArtifacts) ... ok
+test_index_run_artifacts_prefers_manifest (test_service_artifacts.TestServiceArtifacts) ... ok
+test_admin_routes (test_service_http.TestServiceHttp) ... ok
+test_approval_routes (test_service_http.TestServiceHttp) ... {"event": "approval_submitted", "request_id": "698bfccb-60fb-43b5-a0e1-cd1a43fc742f", "scope": "tool.write", "task_id": "task-1", "ts": "2026-04-04T11:36:43.069843+00:00"}
+{"event": "approval_resolved", "request_id": "698bfccb-60fb-43b5-a0e1-cd1a43fc742f", "status": "approved", "ts": "2026-04-04T11:36:43.069941+00:00"}
+ok
+test_export_routes (test_service_http.TestServiceHttp) ... {"event": "task_submitted", "run_id": "38b944ad-88b5-472f-bf19-d02532879338", "task": "summarize architecture", "task_id": "38b944ad-88b5-472f-bf19-d02532879338", "ts": "2026-04-04T11:36:43.070371+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "38b944ad-88b5-472f-bf19-d02532879338", "task_id": "38b944ad-88b5-472f-bf19-d02532879338", "ts": "2026-04-04T11:36:43.089892+00:00"}
+{"event": "export_job_submitted", "job_id": "fed6749c-bf29-45d2-b6a3-ca7f32f79bc4", "job_kind": "markdown_report", "run_id": "38b944ad-88b5-472f-bf19-d02532879338", "ts": "2026-04-04T11:36:43.089959+00:00"}
+{"event": "export_job_completed", "job_id": "fed6749c-bf29-45d2-b6a3-ca7f32f79bc4", "output_path": "/tmp/tmpb__84a1i/.runs/38b944ad-88b5-472f-bf19-d02532879338/report.md", "run_id": "38b944ad-88b5-472f-bf19-d02532879338", "ts": "2026-04-04T11:36:43.090403+00:00"}
+ok
+test_health_route (test_service_http.TestServiceHttp) ... ok
+test_run_submission_route (test_service_http.TestServiceHttp) ... {"event": "task_submitted", "run_id": "6f19553e-370a-4e76-bd08-0f26739e3dd2", "task": "summarize architecture", "task_id": "6f19553e-370a-4e76-bd08-0f26739e3dd2", "ts": "2026-04-04T11:36:43.091698+00:00"}
+{"event": "task_completed", "outcome": "success", "run_id": "6f19553e-370a-4e76-bd08-0f26739e3dd2", "task_id": "6f19553e-370a-4e76-bd08-0f26739e3dd2", "ts": "2026-04-04T11:36:43.110223+00:00"}
+ok
+test_cognition_loop_fallback_backend (test_smoke.SmokeTest) ... ok
+
+======================================================================
+ERROR: test_postgres_store_records_and_updates_run (test_live_postgres.TestLivePostgres)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/Liber8/tests/test_live_postgres.py", line 23, in test_postgres_store_records_and_updates_run
+    result = service.submit_task("live postgres test task")
+  File "/workspace/Liber8/src/service/app.py", line 47, in submit_task
+    self.state_store.record_submission(record)
+  File "/workspace/Liber8/src/service/state.py", line 60, in record_submission
+    raise NotImplementedError("PostgreSQL state store implementation is not wired yet.")
+NotImplementedError: PostgreSQL state store implementation is not wired yet.
+
+======================================================================
+FAIL: test_path_allowlists_are_project_root_derived_or_env_driven (test_regressions_steps_6_9.TestRegressionsSteps6To9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/Liber8/tests/test_regressions_steps_6_9.py", line 25, in test_path_allowlists_are_project_root_derived_or_env_driven
+    self.assertTrue(default_config.path_allowlists[0].endswith("LIBR8"))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 75 tests in 1.103s
+
+FAILED (failures=1, errors=1, skipped=2)
+

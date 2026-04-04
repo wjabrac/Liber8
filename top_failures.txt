@@ -1,0 +1,31 @@
+Top failures/blockers (ranked by impact + estimated fix difficulty)
+
+1) Failing regression on default path allowlist suffix expectation
+- Impact: High (breaks full test suite gate).
+- Evidence: tests.test_regressions_steps_6_9 expected allowlist ending in "LIBR8".
+- Difficulty: Low.
+- Status after fixes in this session: FIXED.
+
+2) Live postgres state-store path raised NotImplementedError
+- Impact: High (service cannot persist state in postgres fallback path; full tests failed).
+- Evidence: tests.test_live_postgres error from PlannedPostgresStateStore.record_submission.
+- Difficulty: Low-Medium (safe in-memory compatibility fallback without infra changes).
+- Status after fixes in this session: FIXED.
+
+3) Service health readiness sensitivity to allowlist path casing
+- Impact: Medium (healthcheck could report fail due path naming variance despite valid workspace).
+- Evidence: healthcheck gate depends on allowlist path existence.
+- Difficulty: Low.
+- Status after fixes in this session: FIXED.
+
+4) Real MicroVM isolation adapter still pending
+- Impact: High for production safety launch.
+- Evidence: docs/production_readiness.md unchecked execution-safety items.
+- Difficulty: High.
+- Status: OPEN.
+
+5) Deployment hardening gaps (Linux packaging/secrets/soak verification)
+- Impact: High for production readiness and operational reliability.
+- Evidence: docs/production_readiness.md unchecked service/ops/testing items.
+- Difficulty: Medium-High.
+- Status: OPEN.
