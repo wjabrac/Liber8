@@ -84,13 +84,22 @@ class PostgresServiceStateStore:
         )
 
     def summary(self) -> Dict[str, object]:
-        with psycopg.connect(self.dsn) as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT status, COUNT(*) FROM service_runs GROUP BY status")
-                rows = cur.fetchall()
-        return {
-            "backend": "postgres",
-            "configured": True,
-            "implemented": True,
-            "statuses": {status: count for status, count in rows},
-        }
+        try:
+            with psycopg.connect(self.dsn) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT status, COUNT(*) FROM service_runs GROUP BY status")
+                    rows = cur.fetchall()
+            return {
+                "backend": "postgres",
+                "configured": True,
+                "implemented": True,
+                "statuses": {status: count for status, count in rows},
+            }
+        except Exception as e:
+            return {
+                "backend": "postgres",
+                "configured": True,
+                "implemented": False,
+                "error": str(e),
+                "statuses": {},
+            }

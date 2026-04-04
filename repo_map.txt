@@ -1,38 +1,18 @@
-LIBR8 repository map (detected from README/docs/spec/work_orders/src/tests)
+# LIBR8 Repository Map
 
-Entrypoints detected from repo code/docs
-- CLI entrypoint:
-  - main.py -> src.cli.main() (default run wrapper)
-  - direct module entrypoint: python -m src.cli
-- Service entrypoint:
-  - src.cli command `serve` invokes src.service.http.serve_forever with Libr8Service
-  - docs/service_api.md local start confirms: python -m src.cli serve --host ... --port ...
-- Test suite entrypoint:
-  - unittest discovery over tests/: python -m unittest discover -s tests -v
-  - targeted baseline from ENVIRONMENT.md uses python -m unittest <module list>
+## Major Modules
+- `src/cognition/`: Canonical cognition engine, persistent event loops, and backend configurations. Driver of thought and memory.
+- `src/service/`: Service and HTTP API wrapper, application lifecycle (e.g. `app.py`, `http.py`), and operational state-store contracts.
+- `src/contracts/`: Defines internal and external schemas, validation rules, state serialization, and schema migrations.
+- `src/failures/`: Failure classification, retry policies, and error taxonomies.
+- `src/tools/`: Tool execution gateway, registry, and policy controls (e.g. MCP integration).
+- `src/ops/`: Operational logging helpers, run retention, and garbage collection.
+- `src/retrieval/`: Handles document/snippet retrieval and ranking for cognition context.
+- `src/replay/`: Run aggregation and tracing for evaluations.
+- `src/cli.py`: Native command line interface endpoints (`run`, `healthcheck`, `serve`).
+- `tests/`: Smoke, architecture, unit and end-to-end integration tests.
 
-Major modules and purpose
-- src/cognition/
-  - Purpose: canonical cognition core orchestration and backend configuration.
-  - Key files: src/cognition/engine.py, src/cognition/config.py, src/cognition/backends.py.
-- src/cli.py
-  - Purpose: operator CLI for run/replay/export/healthcheck/service/admin/migration/retention.
-  - Key files: src/cli.py, main.py.
-- src/service/
-  - Purpose: long-running API/service wrapper, routing, state store, approvals, exports, migrations.
-  - Key files: src/service/app.py, src/service/http.py, src/service/config.py, src/service/state.py, src/service/migrations.py.
-- src/contracts/
-  - Purpose: schema models, migration/upcasting, validation.
-  - Key files: src/contracts/models.py, src/contracts/migration.py, src/contracts/validators.py.
-- src/execution/
-  - Purpose: command classification + execution gateway and sandbox checks.
-  - Key files: src/execution/classifier.py, src/execution/gateway.py.
-- src/retrieval/, src/replay/, src/ops/, src/runs/
-  - Purpose: retrieval/ranking, replay analysis, operational logging/retention, run directory lifecycle.
-  - Key files: src/retrieval/scoring.py, src/replay/replayer.py, src/ops/retention.py, src/runs/session.py.
-- tests/
-  - Purpose: broad unittest coverage (CLI, engine, service, execution gateway, regressions, contracts).
-  - Key files: tests/test_cli_ops.py, tests/test_service_http.py, tests/test_engine.py, tests/test_regressions_steps_6_9.py, tests/test_live_postgres.py.
-- docs/, spec/, work_orders/
-  - Purpose: architecture + readiness docs, protocol/spec docs, work-order backlog.
-  - Key files: docs/architecture.md, docs/service_api.md, docs/production_readiness.md, spec/contracts_v0.md, work_orders/codeex/015_ci_workflow_tests.md.
+## Key Entrypoints
+1. **CLI**: `src/cli.py` (exposed directly or via `main.py` when properly passing `sys.argv`). Provides `healthcheck`, `serve`, `run` subcommands.
+2. **Service / API**: Wrapped around `src.service.app`, instantiated using `python src/cli.py serve`.
+3. **Test Suite**: Run using python's built-in `unittest` module (`python -m unittest discover tests`).

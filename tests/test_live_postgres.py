@@ -10,6 +10,7 @@ class TestLivePostgres(unittest.TestCase):
     def setUp(self):
         self.dsn = os.environ.get("TEST_POSTGRES_DSN", "postgres://postgres:mysecretpassword@127.0.0.1:5432/libr8_test")
         
+    @unittest.skipUnless(os.environ.get("LIVE_POSTGRES"), "Requires active PostgreSQL to test live store")
     def test_postgres_store_records_and_updates_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             service = Libr8Service(ServiceConfig(
