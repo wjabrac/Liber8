@@ -1,0 +1,16 @@
+[Unit]
+Description=LIBR8 Service API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/libr8
+EnvironmentFile=/etc/libr8/libr8.env
+ExecStart=/opt/libr8/.venv/bin/python -m src.cli serve --host ${LIBR8_SERVICE_HOST} --port ${LIBR8_SERVICE_PORT} --storage-dir ${LIBR8_STORAGE_DIR} --backend ${LIBR8_COGNITION_BACKEND}
+Restart=on-failure
+RestartSec=5
+User=libr8
+Group=libr8
+
+[Install]
+WantedBy=multi-user.target

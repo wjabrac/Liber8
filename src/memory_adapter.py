@@ -27,9 +27,15 @@ class FileSystemMemoryAdapter:
                     blocks.append(MemoryBlock.from_dict(json.loads(line)))
 
         filtered = blocks if not tags.tags else [block for block in blocks if _tags_overlap(block.tags, tags)]
-        if query_plan is None:
-            return filtered
-        return filtered[: query_plan.limits]
+        if query_plan is not None:
+            lane_filter = query_plan.filters.get("lane") if isinstance(query_plan.filters, dict) else None
+            lane_filters = query_plan.filters.get("lanes") if isinstance(query_plan.filters, dict) else None
+            if lane_filter:
+                filtered = [block for block in filtered if block.lane == lane_filter]
+            if lane_filters:
+                filtered = [block for block in filtered if block.lane in lane_filters]
+            return filtered[: query_plan.limits]
+        return filtered
 
     def write(self, block: MemoryBlock) -> None:
         with self.path.open("a", encoding="utf-8") as handle:

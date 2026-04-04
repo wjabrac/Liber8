@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from typing import Any, Dict
 
-from .contracts import TagSet
+from .contracts import SCHEMA_VERSION, TagSet
 
 
 class Tagger:
@@ -22,12 +22,12 @@ class Tagger:
                 "task_length": len(task),
                 "task_prefix": task[:12],
             }
-            return TagSet(schema_version="v0", tags=tags, uncertainty={"intent": 0.0})
-        # NOTE: Backend integration is a stub unless an HTTP call is implemented.
+            return TagSet(schema_version=SCHEMA_VERSION, tags=tags, uncertainty={"intent": 0.0})
+
         tags = {
             "intent": "backend_stub",
             "backend": "stub",
             "endpoint": self.model_endpoint,
             "task_length": len(task),
         }
-        return TagSet(schema_version="v0", tags=tags, uncertainty={"intent": 0.2})
+        return TagSet(schema_version=SCHEMA_VERSION, tags=tags, uncertainty={"intent": 0.2})

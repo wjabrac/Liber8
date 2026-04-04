@@ -1,18 +1,44 @@
-# OS
-.DS_Store
-Thumbs.db
-# Python
+# local runtime
+.venv/
+.runs/
+.playwright-mcp/
+.wip_restore/
+.wip_untracked_root/
+
+# local data / models / evidence
+model/
+source_material/
+specimens/
+engine_chunk_*
+loop_chunk_*
+out.txt
+git_log.txt
+git_status.txt
+git_status_post_recovery.txt
+test_output.txt
+test_errors.txt
+
+# local env / secrets
+.env
+.env.*
+*.password.txt
+
+# local editor / machine noise
+anysphere.remote-wsl-1.0.9/
+serve_error.log
+test_out.txt
+test_results.log
+
+# python / editor noise
 __pycache__/
 *.pyc
-.venv/
-.env
-# Node/web
-node_modules/
-.next/
-dist/
-build/
-.cache/
-coverage/
-# IDE
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db

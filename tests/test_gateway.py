@@ -1,6 +1,7 @@
 """Gateway testing with strict tool boundaries."""
 import unittest
 import os
+from src.execution.isolation import LocalPassthroughIsolationBoundary
 from src.tools.contracts import ToolRequest, ApprovalContext
 from src.tools.policy import ToolPolicy
 from src.tools.registry import ToolRegistry
@@ -11,37 +12,58 @@ class TestExecutionGateway(unittest.TestCase):
     def setUp(self):
         self.registry = ToolRegistry()
         register_standard_tools(self.registry)
-        
+
     def test_missing_approval_denies_write(self):
         policy = ToolPolicy("write", True, [])
         gateway = ExecutionGateway(self.registry, policy)
         req = ToolRequest("write_file", {"path": "/tmp/test.txt", "content": "123"})
         res, dp = gateway.execute(req, approval=None)
-        
+
         self.assertEqual(res.status, "denied")
         self.assertEqual(res.error_class, "policy_violation_missing_approval")
-        
+
     def test_read_only_mode_denies_write_even_with_approval(self):
         policy = ToolPolicy("read_only", True, [])
         gateway = ExecutionGateway(self.registry, policy)
-        
+
         ctx = ApprovalContext("test", "test")
         req = ToolRequest("write_file", {"path": "/tmp/test.txt", "content": "123"})
         res, dp = gateway.execute(req, approval=ctx)
-        
+
         self.assertEqual(res.status, "denied")
         self.assertEqual(res.error_class, "policy_violation_write_in_read_only")
-        
+
     def test_path_normalization_enforces_bounds(self):
         base_dir = os.path.realpath(os.path.abspath("."))
         policy = ToolPolicy("read_only", True, [base_dir])
         gateway = ExecutionGateway(self.registry, policy)
-        
+
         req = ToolRequest("list_directory", {"path": "../../../../../../etc"})
         res, dp = gateway.execute(req, approval=None)
-        
+
         self.assertEqual(res.status, "denied")
         self.assertEqual(res.error_class, "policy_violation_path_escape")
+
+    def test_isolation_required_denies_without_boundary(self):
+        policy = ToolPolicy("write", True, [], enforce_isolation_for_writes=True)
+        gateway = ExecutionGateway(self.registry, policy)
+        ctx = ApprovalContext("test", "test")
+
+        req = ToolRequest("write_file", {"path": "/tmp/test.txt", "content": "123"})
+        res, dp = gateway.execute(req, approval=ctx)
+
+        self.assertEqual(res.status, "denied")
+        self.assertEqual(res.error_class, "policy_violation_isolation_required")
+
+    def test_isolation_boundary_allows_write_execution(self):
+        policy = ToolPolicy("write", True, [], enforce_isolation_for_writes=True)
+        gateway = ExecutionGateway(self.registry, policy, isolation_boundary=LocalPassthroughIsolationBoundary())
+        ctx = ApprovalContext("test", "test")
+
+        req = ToolRequest("write_file", {"path": "/tmp/test.txt", "content": "123"})
+        res, dp = gateway.execute(req, approval=ctx)
+
+        self.assertEqual(res.status, "success")
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.contracts import MemoryBlock, QueryPlan, TagSet
+from src.contracts import MemoryBlock, QueryPlan, SCHEMA_VERSION, TagSet
 from src.memory_adapter import FileSystemMemoryAdapter
 
 
@@ -13,7 +13,7 @@ class TestFileSystemMemoryAdapter(unittest.TestCase):
             adapter.write(
                 MemoryBlock(
                     content="match",
-                    tags=TagSet(schema_version="v0", tags={"intent": "match"}),
+                    tags=TagSet(schema_version=SCHEMA_VERSION, tags={"intent": "match"}),
                     provenance={"source": "test"},
                     lane="episodic",
                     confidence=0.5,
@@ -22,13 +22,13 @@ class TestFileSystemMemoryAdapter(unittest.TestCase):
             adapter.write(
                 MemoryBlock(
                     content="miss",
-                    tags=TagSet(schema_version="v0", tags={"intent": "miss"}),
+                    tags=TagSet(schema_version=SCHEMA_VERSION, tags={"intent": "miss"}),
                     provenance={"source": "test"},
                     lane="episodic",
                     confidence=0.5,
                 )
             )
-            results = adapter.read(TagSet(schema_version="v0", tags={"intent": "match"}))
+            results = adapter.read(TagSet(schema_version=SCHEMA_VERSION, tags={"intent": "match"}))
             self.assertEqual(len(results), 1)
             self.assertEqual(results[0].content, "match")
 
@@ -39,14 +39,14 @@ class TestFileSystemMemoryAdapter(unittest.TestCase):
                 adapter.write(
                     MemoryBlock(
                         content=f"entry-{idx}",
-                        tags=TagSet(schema_version="v0", tags={}),
+                        tags=TagSet(schema_version=SCHEMA_VERSION, tags={}),
                         provenance={"source": "test"},
                         lane="episodic",
                         confidence=0.5,
                     )
                 )
             plan = QueryPlan(filters={}, limits=1, recency_bias=0.0)
-            results = adapter.read(TagSet(schema_version="v0", tags={}), query_plan=plan)
+            results = adapter.read(TagSet(schema_version=SCHEMA_VERSION, tags={}), query_plan=plan)
             self.assertEqual(len(results), 1)
 
 

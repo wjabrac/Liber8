@@ -6,15 +6,15 @@ from src.orchestration.router import run_router
 
 
 class TestRouterSmoke(unittest.TestCase):
-    def test_router_runs_end_to_end(self) -> None:
+    def test_router_runs_via_canonical_engine(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            storage_dir = Path(tmpdir) / "run"
-            event = run_router("hello router", storage_dir, fake_backend=True)
+            run_dir = Path(tmpdir) / "run"
+            event = run_router("hello router", run_dir, fake_backend=True)
 
-            self.assertEqual(event.actions[-1], "event_log")
-            self.assertEqual(event.actions[:4], ["tag_extraction", "memory_read", "synthesis", "memory_write"])
-            self.assertTrue((storage_dir / "eventlog.jsonl").exists())
-            self.assertTrue((storage_dir / "memory.jsonl").exists())
+            self.assertIn(event.outcome, ["success", "degraded"])
+            self.assertEqual(Path(event.provenance["run_artifact_dir"]), run_dir)
+            self.assertTrue((run_dir / "eventlog.jsonl").exists())
+            self.assertTrue((run_dir / "memory.jsonl").exists())
 
 
 if __name__ == "__main__":

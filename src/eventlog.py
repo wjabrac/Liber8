@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Iterable, List
 
 from .contracts import EventRecord
+from .contracts.migration import upcast_event
 
 
 class EventLog:
@@ -27,7 +28,7 @@ class EventLog:
         with self.path.open("r", encoding="utf-8") as handle:
             for line in handle:
                 if line.strip():
-                    records.append(EventRecord.from_dict(json.loads(line)))
+                    records.append(EventRecord.from_dict(upcast_event(json.loads(line))))
         return records
 
 

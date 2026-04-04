@@ -2,13 +2,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.contracts import EventRecord, QueryPlan, TagSet
+from src.contracts import EventRecord, QueryPlan, SCHEMA_VERSION, TagSet
 from src.eventlog import EventLog
 
 
 class EventLogTest(unittest.TestCase):
     def test_write_and_read(self) -> None:
-        tags = TagSet(schema_version="v0", tags={"intent": "eventlog"})
+        tags = TagSet(schema_version=SCHEMA_VERSION, tags={"intent": "eventlog"})
         query_plan = QueryPlan(filters={}, limits=0, recency_bias=0.0)
         record = EventRecord(
             task="log",
@@ -17,9 +17,10 @@ class EventLogTest(unittest.TestCase):
             retrieved_ids=[],
             actions=["event_log"],
             tool_calls=[],
-            validations=["contracts_v0"],
+            validations=["contracts_v1_strict"],
             outcome="success",
             provenance={"source": "unit_test"},
+            version_info={"core_engine": "0.1.0", "plugin_set": "none"},
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -30,6 +31,8 @@ class EventLogTest(unittest.TestCase):
 
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].task, "log")
+        self.assertEqual(records[0].schema_version, SCHEMA_VERSION)
+        self.assertEqual(records[0].version_info["core_engine"], "0.1.0")
 
 
 if __name__ == "__main__":

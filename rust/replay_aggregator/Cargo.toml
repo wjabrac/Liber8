@@ -1,0 +1,12 @@
+[package]
+name = "replay_aggregator"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "replay_aggregator"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["extension-module"] }
+serde_json = "1.0"

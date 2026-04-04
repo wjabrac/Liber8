@@ -1,15 +1,14 @@
-"""Performance Trace v0 models and writers."""
+"""Performance trace models and writers."""
 
 from __future__ import annotations
 
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .contracts import TagSet, _now_iso, _ensure_jsonable, _require
+from .contracts import SCHEMA_VERSION, TagSet, _now_iso, _ensure_jsonable
 
 
 @dataclass
@@ -65,11 +64,34 @@ class CostInfo:
 
 
 @dataclass
+class ExecutionSpan:
+    name: str
+    started_at: str
+    ended_at: str
+    status: str
+    span_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    parent_span_id: Optional[str] = None
+    attributes: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "span_id": self.span_id,
+            "parent_span_id": self.parent_span_id,
+            "started_at": self.started_at,
+            "ended_at": self.ended_at,
+            "status": self.status,
+            "attributes": self.attributes,
+        }
+
+
+@dataclass
 class ProvenanceInfo:
     git_commit: str
     engine_version: str
     cognition_backend: str
     config_hash: str
+    version_info: Dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -77,6 +99,7 @@ class ProvenanceInfo:
             "engine_version": self.engine_version,
             "cognition_backend": self.cognition_backend,
             "config_hash": self.config_hash,
+            "version_info": self.version_info,
         }
 
 
@@ -92,10 +115,11 @@ class PerformanceTrace:
     provenance: ProvenanceInfo
     created_at: str = field(default_factory=_now_iso)
     trace_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    schema_version: str = "1.0"
+    schema_version: str = SCHEMA_VERSION
     failure_class: Optional[str] = None
     retrieval_stats: Optional[RetrievalStats] = None
     costs: Optional[CostInfo] = None
+    execution_spans: List[ExecutionSpan] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -112,6 +136,7 @@ class PerformanceTrace:
             "validators": self.validators,
             "retrieval_stats": self.retrieval_stats.to_dict() if self.retrieval_stats else None,
             "costs": self.costs.to_dict() if self.costs else None,
+            "execution_spans": [span.to_dict() for span in self.execution_spans],
             "provenance": self.provenance.to_dict(),
         }
 
