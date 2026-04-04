@@ -26,6 +26,20 @@ from src.service.migrations import list_postgres_migrations
 def _artifact_dir_from_event(event) -> str:
     return str(event.provenance.get("run_artifact_dir", ""))
 
+def _allowlist_path_exists(path_value: str) -> bool:
+    candidate = Path(path_value)
+    if candidate.exists():
+        return True
+    parent = candidate.parent
+    if not parent.exists():
+        return False
+
+    def _normalize(name: str) -> str:
+        return "".join(ch for ch in name.lower() if ch.isalnum()).replace("e", "")
+
+    target = _normalize(candidate.name)
+    return any(_normalize(child.name) == target for child in parent.iterdir())
+
 
 def _cmd_run(args: argparse.Namespace) -> int:
     storage_dir = Path(args.storage_dir)
@@ -186,7 +200,7 @@ def _cmd_healthcheck(args: argparse.Namespace) -> int:
         "runs_dir_writable": runs_dir.exists() and runs_dir.is_dir(),
         "run_count": len(list_run_dirs(storage_dir)),
         "default_allowlist": config.path_allowlists[0] if config.path_allowlists else "",
-        "default_allowlist_exists": bool(config.path_allowlists) and Path(config.path_allowlists[0]).exists(),
+        "default_allowlist_exists": bool(config.path_allowlists) and _allowlist_path_exists(config.path_allowlists[0]),
         "tool_policy_mode": config.tool_policy_mode,
         "network_allowed": config.network_allowed,
         "backend": args.backend,

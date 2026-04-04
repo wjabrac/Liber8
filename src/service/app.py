@@ -31,6 +31,7 @@ class Libr8Service:
     ) -> None:
         self.config = config
         self.state_store = state_store or build_state_store(config.state_store_backend, config.postgres_dsn)
+        self.state = self.state_store
         self.logger = logger or JsonLogger()
         self.approval_queue = approval_queue or InMemoryApprovalQueue()
         self.export_queue = export_queue or InMemoryExportJobQueue()

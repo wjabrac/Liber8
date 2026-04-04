@@ -10,7 +10,10 @@ from typing import Dict, List, Optional
 
 
 def _project_root() -> Path:
-    return Path(__file__).resolve().parents[2]
+    root = Path(__file__).resolve().parents[2]
+    if root.name.lower() in {"libr8", "liber8"}:
+        return root.parent / "LIBR8"
+    return root
 
 
 def _default_path_allowlists() -> List[str]:

@@ -55,21 +55,25 @@ class InMemoryServiceStateStore:
 class PlannedPostgresStateStore:
     def __init__(self, dsn: str | None) -> None:
         self.dsn = dsn or ""
+        self._fallback = InMemoryServiceStateStore()
 
     def record_submission(self, record: RunRecord) -> None:
-        raise NotImplementedError("PostgreSQL state store implementation is not wired yet.")
+        self._fallback.record_submission(record)
 
     def update_record(self, task_id: str, **updates: str | None) -> RunRecord | None:
-        raise NotImplementedError("PostgreSQL state store implementation is not wired yet.")
+        return self._fallback.update_record(task_id, **updates)
 
     def get_record(self, task_id: str) -> RunRecord | None:
-        raise NotImplementedError("PostgreSQL state store implementation is not wired yet.")
+        return self._fallback.get_record(task_id)
 
     def summary(self) -> Dict[str, object]:
+        fallback_summary = self._fallback.summary()
         return {
             "backend": "postgres",
             "configured": bool(self.dsn),
             "implemented": False,
+            "fallback_backend": fallback_summary["backend"],
+            "fallback_records": fallback_summary["records"],
             "schema_path": str(postgres_schema_path()),
         }
 
