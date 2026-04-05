@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 from src.cli import main as cli_main
 from src.cognition.config import EngineConfig
@@ -58,6 +59,18 @@ class TestCliOps(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertTrue(payload["postgres"])
         self.assertTrue(any(item["name"] == "001_service_schema.sql" for item in payload["postgres"]))
+
+    def test_migrate_uses_dsn_from_environment(self) -> None:
+        stdout = io.StringIO()
+        with patch.dict("os.environ", {"LIBR8_POSTGRES_DSN": "postgres://unit-test"}, clear=False):
+            with patch("src.cli.MigrationRunner") as mock_runner:
+                mock_runner.return_value.apply_migrations.return_value = []
+                with redirect_stdout(stdout):
+                    rc = cli_main(["migrate"])
+
+        self.assertEqual(rc, 0)
+        mock_runner.assert_called_once_with("postgres://unit-test")
+        self.assertIn("Database is up to date.", stdout.getvalue())
 
     def test_run_emits_run_manifest_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
