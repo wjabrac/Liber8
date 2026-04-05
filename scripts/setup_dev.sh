@@ -1,0 +1,49 @@
+#!/bin/bash
+# LIBR8 Developer Environment Setup Script
+set -e
+
+echo "Setting up LIBR8 developer environment..."
+
+# 1. Ensure virtual environment exists
+if [ ! -d ".venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv .venv
+fi
+
+source .venv/bin/activate
+
+# 2. Upgrade pip
+pip install --upgrade pip
+
+# 3. Install core dependencies
+echo "Installing dependencies..."
+pip install python-dotenv maturin pytest psycopg[binary] dspy-ai zep-python
+
+# 4. Initialize storage directories
+echo "Initializing storage directories..."
+mkdir -p .storage/.runs
+
+# 5. Build Rust extensions
+echo "Building Rust extensions..."
+if command -v maturin > /dev/null; then
+    cd rust/retrieval_ranker && maturin develop && cd ../..
+else
+    echo "Warning: maturin not found, skipping Rust build."
+fi
+
+# 6. Create initial .env if missing
+if [ ! -f ".env" ]; then
+    echo "Creating default .env file..."
+    cat > .env << 'EOF'
+LIBR8_COGNITION_BACKEND=fallback
+LIBR8_STORAGE_DIR=.storage
+LIBR8_SERVICE_HOST=127.0.0.1
+LIBR8_SERVICE_PORT=8080
+LIBR8_LOG_LEVEL=INFO
+LIBR8_LOG_JSON=True
+LIBR8_REQUIRE_ISOLATION_FOR_WRITES=False
+LIBR8_EXECUTION_ISOLATION_BACKEND=none
+EOF
+fi
+
+echo "Setup complete! Use 'source .venv/bin/activate' to start."
