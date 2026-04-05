@@ -192,6 +192,22 @@ def _cmd_healthcheck(args: argparse.Namespace) -> int:
     runs_dir = storage_dir / ".runs"
     runs_dir.mkdir(parents=True, exist_ok=True)
 
+    # Environment validation
+    venv_path = Path(".venv")
+    has_venv = venv_path.exists() and venv_path.is_dir()
+    
+    try:
+        import psycopg
+        has_psycopg = True
+    except ImportError:
+        has_psycopg = False
+
+    try:
+        from dotenv import load_dotenv
+        has_dotenv = True
+    except ImportError:
+        has_dotenv = False
+
     checks = {
         "python": sys.version.split()[0],
         "platform": platform.platform(),
@@ -208,13 +224,16 @@ def _cmd_healthcheck(args: argparse.Namespace) -> int:
         "execution_isolation_target": config.execution_isolation_backend,
         "observability_spans": "ai.agent.invoke,ai.tool.invoke,ai.llm.invoke",
         "versioning_mode": "composite",
+        "venv_exists": has_venv,
+        "dependency_psycopg": has_psycopg,
+        "dependency_dotenv": has_dotenv,
     }
 
     print("--- LIBR8 HEALTHCHECK ---")
     for key, value in checks.items():
         print(f"{key}: {value}")
 
-    healthy = bool(checks["runs_dir_writable"] and checks["default_allowlist_exists"])
+    healthy = bool(checks["runs_dir_writable"] and checks["default_allowlist_exists"] and has_venv)
     print(f"healthcheck_status: {'ok' if healthy else 'fail'}")
     return 0 if healthy else 1
 
