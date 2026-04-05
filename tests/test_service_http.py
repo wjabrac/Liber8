@@ -75,6 +75,26 @@ class TestServiceHttp(unittest.TestCase):
             self.assertIn("config", snapshot)
             self.assertTrue(schema["endpoints"])
 
+    def test_api_key_auth(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, api_key="secret-123"))
+            
+            # 1. Blocked without key
+            status, payload = dispatch_http_request(service, "POST", "/v1/runs", {"task": "test"})
+            self.assertEqual(status, 401)
+            self.assertEqual(payload["error"], "unauthorized")
+            
+            # 2. Allowed with correct key
+            status, payload = dispatch_http_request(
+                service, "POST", "/v1/runs", {"task": "test"}, 
+                headers={"X-API-Key": "secret-123"}
+            )
+            self.assertEqual(status, 202)
+            
+            # 3. Healthz is public
+            status, _ = dispatch_http_request(service, "GET", "/healthz")
+            self.assertEqual(status, 200)
+
 
 if __name__ == "__main__":
     unittest.main()

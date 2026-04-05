@@ -44,6 +44,7 @@ class ServiceConfig:
     postgres_dsn: str | None = field(default_factory=lambda: os.getenv("LIBR8_POSTGRES_DSN"))
     log_level: str = field(default_factory=lambda: os.getenv("LIBR8_LOG_LEVEL", "INFO"))
     log_json: bool = field(default_factory=lambda: _env_flag("LIBR8_LOG_JSON", True))
+    api_key: str | None = field(default_factory=lambda: os.getenv("LIBR8_API_KEY"))
     require_isolation_for_writes: bool = field(default_factory=lambda: _env_flag("LIBR8_REQUIRE_ISOLATION_FOR_WRITES", False))
     execution_isolation_backend: str = field(default_factory=lambda: os.getenv("LIBR8_EXECUTION_ISOLATION_BACKEND", "none"))
     retention_policy: RunRetentionPolicy = field(default_factory=RunRetentionPolicy.from_env)

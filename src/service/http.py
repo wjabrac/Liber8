@@ -11,8 +11,24 @@ from src.service.migrations import list_postgres_migrations
 from src.service.schema import service_endpoint_catalog
 
 
-def dispatch_http_request(service: Libr8Service, method: str, path: str, body: Dict[str, Any] | None = None) -> Tuple[int, Dict[str, Any]]:
+def dispatch_http_request(
+    service: Libr8Service, 
+    method: str, 
+    path: str, 
+    body: Dict[str, Any] | None = None,
+    headers: Dict[str, str] | None = None
+) -> Tuple[int, Dict[str, Any]]:
     body = body or {}
+    headers = headers or {}
+    
+    # Auth bypass for health checks
+    if method == "GET" and path in {"/healthz", "/readyz"}:
+        pass
+    elif service.config.api_key:
+        request_key = headers.get("X-API-Key") or headers.get("x-api-key")
+        if request_key != service.config.api_key:
+            return 401, {"error": "unauthorized"}
+
     if method == "GET" and path == "/healthz":
         return 200, service.health()
     if method == "GET" and path == "/readyz":
@@ -84,7 +100,10 @@ def build_handler_class(service: Libr8Service):
             length = int(self.headers.get("Content-Length", "0"))
             raw = self.rfile.read(length) if length else b""
             body = json.loads(raw.decode("utf-8")) if raw else {}
-            status, payload = dispatch_http_request(service, method, self.path, body)
+            
+            headers = {k: v for k, v in self.headers.items()}
+            status, payload = dispatch_http_request(service, method, self.path, body, headers)
+            
             encoded = json.dumps(payload).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "application/json")
