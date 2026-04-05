@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 from typing import Any, Callable, Dict, Optional, Protocol
 
 
@@ -57,4 +58,7 @@ def build_isolation_boundary(name: str | None) -> Optional[ExecutionIsolationBou
         return LocalPassthroughIsolationBoundary()
     if name == "deny":
         return DenyIsolationBoundary()
+    if name == "hyperv":
+        from .hyperv import HyperVIsolationBoundary
+        return HyperVIsolationBoundary(vm_name=os.getenv("LIBR8_HYPERV_VM_NAME"))
     return DenyIsolationBoundary()
