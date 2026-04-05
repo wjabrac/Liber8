@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Dict
+import time
+from typing import Dict, Any
 
 from src.service.models import RunRecord
 
@@ -20,8 +21,11 @@ class PostgresServiceStateStore:
             raise RuntimeError("psycopg is not installed; PostgreSQL state store is unavailable.")
         self.dsn = dsn
 
+    def _connect(self, timeout: int = 2):
+        return psycopg.connect(self.dsn, connect_timeout=timeout)
+
     def record_submission(self, record: RunRecord) -> None:
-        with psycopg.connect(self.dsn) as conn:
+        with self._connect() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     """
@@ -56,13 +60,13 @@ class PostgresServiceStateStore:
 
         assignments = ", ".join(f"{key} = %s" for key in columns)
         values = list(columns.values()) + [task_id]
-        with psycopg.connect(self.dsn) as conn:
+        with self._connect() as conn:
             with conn.cursor() as cur:
                 cur.execute(f"UPDATE service_runs SET {assignments}, updated_at = NOW() WHERE task_id = %s", values)
         return self.get_record(task_id)
 
     def get_record(self, task_id: str) -> RunRecord | None:
-        with psycopg.connect(self.dsn) as conn:
+        with self._connect() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     "SELECT task_id, run_id, task, status, outcome, created_at, updated_at, artifact_dir, failure_class FROM service_runs WHERE task_id = %s",
@@ -88,7 +92,7 @@ class PostgresServiceStateStore:
         if psycopg is None:
             return False
         try:
-            with psycopg.connect(self.dsn, connect_timeout=2) as conn:
+            with self._connect() as conn:
                 with conn.cursor() as cur:
                     cur.execute("SELECT 1 FROM service_runs LIMIT 1")
             return True
@@ -97,7 +101,7 @@ class PostgresServiceStateStore:
 
     def summary(self) -> Dict[str, object]:
         try:
-            with psycopg.connect(self.dsn, connect_timeout=2) as conn:
+            with self._connect() as conn:
                 with conn.cursor() as cur:
                     cur.execute("SELECT status, COUNT(*) FROM service_runs GROUP BY status")
                     rows = cur.fetchall()

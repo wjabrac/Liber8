@@ -26,6 +26,19 @@ class TestServiceApp(unittest.TestCase):
             self.assertEqual(health["status"], "degraded")
             self.assertFalse(health["state_store_reachable"])
 
+    def test_health_reports_unreachable_postgres(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Invalid DSN/port to force a timeout/failure
+            service = Libr8Service(ServiceConfig(
+                storage_dir=tmpdir, 
+                state_store_backend="postgres", 
+                postgres_dsn="postgres://postgres:password@127.0.0.1:54321/nonexistent"
+            ))
+            health = service.health()
+            self.assertEqual(health["status"], "degraded")
+            self.assertFalse(health["state_store_reachable"])
+            self.assertFalse(health["state_store"]["reachable"])
+
     def test_submit_task_records_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             service = Libr8Service(ServiceConfig(storage_dir=tmpdir, cognition_backend="fallback"))
