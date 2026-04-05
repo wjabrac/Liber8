@@ -1,6 +1,11 @@
 #!/bin/bash
 # LIBR8 Developer Environment Setup Script
-set -e
+set -euo pipefail
+
+if [ ! -f "scripts/setup_dev.sh" ]; then
+    echo "Please run this script from the repository root."
+    exit 1
+fi
 
 echo "Setting up LIBR8 developer environment..."
 
@@ -26,7 +31,10 @@ mkdir -p .storage/.runs
 # 5. Build Rust extensions
 echo "Building Rust extensions..."
 if command -v maturin > /dev/null; then
-    cd rust/retrieval_ranker && maturin develop && cd ../..
+    (
+        cd rust/retrieval_ranker
+        maturin develop
+    )
 else
     echo "Warning: maturin not found, skipping Rust build."
 fi

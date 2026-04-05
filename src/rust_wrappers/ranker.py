@@ -1,6 +1,7 @@
 """Python wrapper for the Rust retrieval_ranker boundary substitution."""
 
 import logging
+from collections import defaultdict, deque
 from typing import List
 from src.contracts import MemoryBlock
 
@@ -40,16 +41,20 @@ class RustRankerWrapper:
         contents = [b.content for b in blocks]
         try:
             ranked_contents = retrieval_ranker.rank_blocks(contents, query)
-            # Reconstruct MemoryBlock list from ranked contents
-            # (Note: this simple implementation assumes unique contents for reconstruction)
-            content_to_block = {b.content: b for b in blocks}
+            # Reconstruct MemoryBlock list from ranked contents while preserving duplicate
+            # contents by consuming from a queue per content value.
+            content_to_block_queue = defaultdict(deque)
+            for block in blocks:
+                content_to_block_queue[block.content].append(block)
             ranked_blocks = []
             for rc in ranked_contents:
-                if rc in content_to_block:
-                    ranked_blocks.append(content_to_block[rc])
+                if content_to_block_queue[rc]:
+                    ranked_blocks.append(content_to_block_queue[rc].popleft())
             
             # Add back any blocks that might have been filtered or missed
-            missed = [b for b in blocks if b.content not in ranked_contents]
+            missed = []
+            for queue in content_to_block_queue.values():
+                missed.extend(queue)
             return ranked_blocks + missed
         except Exception as e:
             logging.error(f"Rust rank_blocks failed: {e}. Falling back to Python.")
