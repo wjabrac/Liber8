@@ -55,3 +55,11 @@ EOF
 fi
 
 echo "Setup complete! Use 'source .venv/bin/activate' to start."
+
+# 7. Final Healthcheck
+echo "Running post-setup healthcheck..."
+if python main.py healthcheck; then
+    echo "Environment verified successfully."
+else
+    echo "Warning: Healthcheck failed. Review the output above."
+fi
