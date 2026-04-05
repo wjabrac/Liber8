@@ -24,10 +24,14 @@ def dispatch_http_request(
     # Auth bypass for health checks
     if method == "GET" and path in {"/healthz", "/readyz"}:
         pass
-    elif service.config.api_key:
+    elif service.config.requires_auth:
         request_key = headers.get("X-API-Key") or headers.get("x-api-key")
-        if request_key != service.config.api_key:
-            return 401, {"error": "unauthorized"}
+        if service.config.api_key:
+            if request_key != service.config.api_key:
+                return 401, {"error": "unauthorized"}
+        else:
+            # Requires auth because non-loopback, but no key is even configured
+            return 403, {"error": "forbidden - non-loopback binding requires LIBR8_API_KEY"}
 
     if method == "GET" and path == "/healthz":
         return 200, service.health()

@@ -45,9 +45,22 @@ class ServiceConfig:
     log_level: str = field(default_factory=lambda: os.getenv("LIBR8_LOG_LEVEL", "INFO"))
     log_json: bool = field(default_factory=lambda: _env_flag("LIBR8_LOG_JSON", True))
     api_key: str | None = field(default_factory=lambda: os.getenv("LIBR8_API_KEY"))
+    allow_unauthenticated_non_loopback: bool = field(default_factory=lambda: _env_flag("LIBR8_ALLOW_UNAUTHENTICATED_NON_LOOPBACK", False))
     require_isolation_for_writes: bool = field(default_factory=lambda: _env_flag("LIBR8_REQUIRE_ISOLATION_FOR_WRITES", False))
     execution_isolation_backend: str = field(default_factory=lambda: os.getenv("LIBR8_EXECUTION_ISOLATION_BACKEND", "none"))
     retention_policy: RunRetentionPolicy = field(default_factory=RunRetentionPolicy.from_env)
+
+    @property
+    def is_loopback(self) -> bool:
+        return self.host in {"127.0.0.1", "localhost", "::1"}
+
+    @property
+    def requires_auth(self) -> bool:
+        if self.api_key:
+            return True
+        if not self.is_loopback and not self.allow_unauthenticated_non_loopback:
+            return True
+        return False
 
     def to_engine_config(self) -> EngineConfig:
         return EngineConfig(

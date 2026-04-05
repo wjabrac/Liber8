@@ -95,6 +95,30 @@ class TestServiceHttp(unittest.TestCase):
             status, _ = dispatch_http_request(service, "GET", "/healthz")
             self.assertEqual(status, 200)
 
+    def test_local_first_auth_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # 1. Loopback with no key -> Allowed
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, host="127.0.0.1", api_key=None))
+            status, _ = dispatch_http_request(service, "POST", "/v1/runs", {"task": "test"})
+            self.assertEqual(status, 202)
+
+            # 2. Non-loopback with no key -> Denied (403)
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, host="0.0.0.0", api_key=None))
+            status, _ = dispatch_http_request(service, "POST", "/v1/runs", {"task": "test"})
+            self.assertEqual(status, 403)
+
+            # 3. Non-loopback with no key + override -> Allowed
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, host="0.0.0.0", api_key=None, allow_unauthenticated_non_loopback=True))
+            status, _ = dispatch_http_request(service, "POST", "/v1/runs", {"task": "test"})
+            self.assertEqual(status, 202)
+
+            # 4. Health checks are ALWAYS public even on non-loopback with no key
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, host="0.0.0.0", api_key=None))
+            status, _ = dispatch_http_request(service, "GET", "/healthz")
+            self.assertEqual(status, 200)
+            status, _ = dispatch_http_request(service, "GET", "/readyz")
+            self.assertEqual(status, 200)
+
 
 if __name__ == "__main__":
     unittest.main()

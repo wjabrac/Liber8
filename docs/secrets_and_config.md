@@ -40,4 +40,15 @@ Production should inject configuration through:
 - API keys
 - service account tokens
 - VM or Hyper-V credentials
-- approval bypass tokens
+- an approval bypass tokens
+
+## Local-First Authentication Policy
+
+LIBR8 implements a "Local-First" security model to balance ease of use with production safety:
+
+1. **Loopback Access**: By default, if the service is bound to `127.0.0.1`, `localhost`, or `::1`, no API key is required.
+2. **Explicit Key**: If `LIBR8_API_KEY` is set in the environment or `.env` file, it is **always** enforced for protected routes via the `X-API-Key` HTTP header.
+3. **Non-Loopback Protection**: If the service binds to a public or non-loopback IP (e.g., `0.0.0.0`) and no API key is configured, access is **denied** by default to prevent accidental exposure.
+4. **Unsafe Override**: Non-loopback access without a key can be explicitly enabled by setting `LIBR8_ALLOW_UNAUTHENTICATED_NON_LOOPBACK=True`.
+5. **Public Endpoints**: `/healthz` and `/readyz` are always public and do not require authentication.
+
