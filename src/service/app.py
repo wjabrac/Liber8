@@ -45,7 +45,11 @@ class Libr8Service:
         task_id = str(uuid.uuid4())
         run_dir = self.storage_dir / ".runs" / task_id
         record = RunRecord(task_id=task_id, run_id=run_dir.name, task=task, status="running", artifact_dir=str(run_dir))
-        self.state_store.record_submission(record)
+        try:
+            self.state_store.record_submission(record)
+        except Exception as exc:
+            self.logger.emit("task_submission_failed", task_id=task_id, error=str(exc))
+            raise RuntimeError(f"state store write failed: {exc}") from exc
         self.logger.emit("task_submitted", task_id=task_id, task=task, run_id=run_dir.name)
 
         engine = self._build_engine()
@@ -70,7 +74,10 @@ class Libr8Service:
         }
 
     def get_task(self, task_id: str) -> Dict[str, Any] | None:
-        record = self.state_store.get_record(task_id)
+        try:
+            record = self.state_store.get_record(task_id)
+        except Exception as exc:
+            raise RuntimeError(f"state store read failed: {exc}") from exc
         return record.to_dict() if record else None
 
     def submit_approval(self, task_id: str, scope: str, reason: str) -> Dict[str, Any]:
@@ -129,7 +136,13 @@ class Libr8Service:
         except Exception:
             storage_writable = False
 
-        ready = storage_writable and not (
+        state_summary = self.state_store.summary()
+        postgres_ready = True
+        if state_summary.get("backend") == "postgres":
+            postgres_ready = bool(state_summary.get("database_available", state_summary.get("implemented", False)))
+            postgres_ready = postgres_ready and bool(state_summary.get("schema_ready", state_summary.get("implemented", False)))
+
+        ready = storage_writable and postgres_ready and not (
             self.config.require_isolation_for_writes and self.config.execution_isolation_backend in {"", "none"}
         )
         return {
@@ -139,7 +152,7 @@ class Libr8Service:
             "storage_writable": storage_writable,
             "backend": self.config.cognition_backend,
             "run_count": len(list_run_dirs(self.storage_dir)),
-            "state_store": self.state_store.summary(),
+            "state_store": state_summary,
             "approval_queue_depth": len(self.approval_queue.pending()),
             "export_job_count": len(self.export_queue.list_all()),
             "require_isolation_for_writes": self.config.require_isolation_for_writes,

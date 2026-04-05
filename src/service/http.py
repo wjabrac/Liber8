@@ -82,10 +82,16 @@ def dispatch_http_request(
         task = str(body.get("task", "")).strip()
         if not task:
             return 400, {"error": "task is required"}
-        return 202, service.submit_task(task)
+        try:
+            return 202, service.submit_task(task)
+        except RuntimeError as exc:
+            return 503, {"error": str(exc)}
     if method == "GET" and path.startswith("/v1/runs/"):
         task_id = path.rsplit("/", 1)[-1]
-        record = service.get_task(task_id)
+        try:
+            record = service.get_task(task_id)
+        except RuntimeError as exc:
+            return 503, {"error": str(exc)}
         if record is None:
             return 404, {"error": "task not found"}
         return 200, record

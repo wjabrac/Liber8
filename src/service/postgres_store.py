@@ -87,19 +87,28 @@ class PostgresServiceStateStore:
         try:
             with psycopg.connect(self.dsn) as conn:
                 with conn.cursor() as cur:
-                    cur.execute("SELECT status, COUNT(*) FROM service_runs GROUP BY status")
-                    rows = cur.fetchall()
+                    cur.execute("SELECT to_regclass('public.service_runs')")
+                    has_table = cur.fetchone()[0] is not None
+                    if has_table:
+                        cur.execute("SELECT status, COUNT(*) FROM service_runs GROUP BY status")
+                        rows = cur.fetchall()
+                    else:
+                        rows = []
             return {
                 "backend": "postgres",
                 "configured": True,
                 "implemented": True,
+                "database_available": True,
+                "schema_ready": has_table,
                 "statuses": {status: count for status, count in rows},
             }
         except Exception as e:
             return {
                 "backend": "postgres",
                 "configured": True,
-                "implemented": False,
+                "implemented": True,
+                "database_available": False,
+                "schema_ready": False,
                 "error": str(e),
                 "statuses": {},
             }

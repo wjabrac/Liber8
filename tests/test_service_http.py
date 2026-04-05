@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+from typing import Dict
 
 from src.service.app import Libr8Service
 from src.service.config import ServiceConfig
@@ -23,6 +24,21 @@ class TestServiceHttp(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(payload["status"], "ok")
 
+    def test_ready_route_reports_postgres_degraded(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(
+                ServiceConfig(
+                    storage_dir=tmpdir,
+                    state_store_backend="postgres",
+                    postgres_dsn="postgres://postgres@127.0.0.1:1/libr8_test?connect_timeout=1",
+                )
+            )
+            status, payload = dispatch_http_request(service, "GET", "/readyz")
+
+            self.assertEqual(status, 503)
+            self.assertEqual(payload["status"], "degraded")
+            self.assertFalse(payload["state_store"]["database_available"])
+
     def test_run_submission_route(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             service = Libr8Service(ServiceConfig(storage_dir=tmpdir))
@@ -33,6 +49,39 @@ class TestServiceHttp(unittest.TestCase):
             self.assertEqual(lookup_status, 200)
             self.assertEqual(record["task_id"], payload["task_id"])
             self.assertTrue(payload["artifacts"])
+
+    def test_run_submission_route_returns_503_when_postgres_missing(self) -> None:
+        class FailingStateStore:
+            def record_submission(self, record) -> None:
+                raise RuntimeError("db unavailable")
+
+            def update_record(self, task_id: str, **updates):
+                return None
+
+            def get_record(self, task_id: str):
+                return None
+
+            def summary(self) -> Dict[str, object]:
+                return {
+                    "backend": "postgres",
+                    "configured": True,
+                    "implemented": True,
+                    "database_available": False,
+                    "schema_ready": False,
+                    "statuses": {},
+                }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(
+                ServiceConfig(
+                    storage_dir=tmpdir,
+                ),
+                state_store=FailingStateStore(),
+            )
+            status, payload = dispatch_http_request(service, "POST", "/v1/runs", {"task": "summarize architecture"})
+
+            self.assertEqual(status, 503)
+            self.assertIn("state store write failed", payload["error"])
 
     def test_approval_routes(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

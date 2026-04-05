@@ -72,6 +72,8 @@ class PlannedPostgresStateStore:
             "backend": "postgres",
             "configured": bool(self.dsn),
             "implemented": False,
+            "database_available": False,
+            "schema_ready": False,
             "fallback_backend": fallback_summary["backend"],
             "fallback_records": fallback_summary["records"],
             "schema_path": str(postgres_schema_path()),

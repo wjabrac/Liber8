@@ -34,14 +34,24 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+def _env_str(name: str, default: str | None = None) -> str | None:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    value = raw.strip()
+    if not value:
+        return default
+    return value
+
+
 @dataclass
 class ServiceConfig:
     host: str = field(default_factory=lambda: os.getenv("LIBR8_SERVICE_HOST", "127.0.0.1"))
     port: int = field(default_factory=lambda: _env_int("LIBR8_SERVICE_PORT", 8080))
     storage_dir: str = field(default_factory=lambda: os.getenv("LIBR8_STORAGE_DIR", ".storage"))
     cognition_backend: str = field(default_factory=lambda: os.getenv("LIBR8_COGNITION_BACKEND", "fallback"))
-    state_store_backend: str = field(default_factory=lambda: os.getenv("LIBR8_STATE_STORE_BACKEND", "memory"))
-    postgres_dsn: str | None = field(default_factory=lambda: os.getenv("LIBR8_POSTGRES_DSN"))
+    state_store_backend: str = field(default_factory=lambda: _env_str("LIBR8_STATE_STORE_BACKEND", "memory") or "memory")
+    postgres_dsn: str | None = field(default_factory=lambda: _env_str("LIBR8_POSTGRES_DSN"))
     log_level: str = field(default_factory=lambda: os.getenv("LIBR8_LOG_LEVEL", "INFO"))
     log_json: bool = field(default_factory=lambda: _env_flag("LIBR8_LOG_JSON", True))
     api_key: str | None = field(default_factory=lambda: os.getenv("LIBR8_API_KEY"))

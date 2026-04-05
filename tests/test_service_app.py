@@ -1,12 +1,18 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from src.service.app import Libr8Service
 from src.service.config import ServiceConfig
 
 
 class TestServiceApp(unittest.TestCase):
+    def test_config_normalizes_blank_postgres_dsn(self) -> None:
+        with mock.patch.dict("os.environ", {"LIBR8_POSTGRES_DSN": "   "}, clear=False):
+            config = ServiceConfig()
+        self.assertIsNone(config.postgres_dsn)
+
     def test_health_reports_api_defaults(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             service = Libr8Service(ServiceConfig(storage_dir=tmpdir, cognition_backend="fallback"))
@@ -23,6 +29,23 @@ class TestServiceApp(unittest.TestCase):
 
             self.assertEqual(health["state_store"]["backend"], "postgres")
             self.assertFalse(health["state_store"]["implemented"])
+            self.assertEqual(health["status"], "degraded")
+
+    def test_health_reports_degraded_when_postgres_unreachable(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(
+                ServiceConfig(
+                    storage_dir=tmpdir,
+                    state_store_backend="postgres",
+                    postgres_dsn="postgres://postgres@127.0.0.1:1/libr8_test?connect_timeout=1",
+                )
+            )
+            health = service.health()
+
+            self.assertEqual(health["state_store"]["backend"], "postgres")
+            self.assertFalse(health["state_store"]["implemented"])
+            self.assertFalse(health["state_store"]["database_available"])
+            self.assertEqual(health["status"], "degraded")
 
     def test_submit_task_records_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
