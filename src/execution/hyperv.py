@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import platform
 import subprocess
 from typing import Any, Callable, Dict, Optional
 from .isolation import IsolationRequest, IsolationResult, ExecutionIsolationBoundary
@@ -15,19 +16,33 @@ class HyperVIsolationBoundary:
 
     def check_ready(self) -> Dict[str, Any]:
         """Check if Hyper-V orchestration is available on the host."""
+        if platform.system() != "Windows":
+            return {"ready": False, "reason": "Hyper-V requires a Windows host"}
+
         try:
             # Check for Hyper-V PowerShell module and service status
-            cmd = (
-                "powershell.exe -Command \"Get-Module -ListAvailable Hyper-V; "
-                "Get-Service vmms | Select-Object -Property Status\""
+            result = subprocess.run(
+                [
+                    "powershell.exe",
+                    "-NoProfile",
+                    "-Command",
+                    "Get-Module -ListAvailable Hyper-V; Get-Service vmms | Select-Object -Property Status",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
             )
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
             
             if result.returncode != 0:
                 return {"ready": False, "reason": "Hyper-V PowerShell module or service not found", "error": result.stderr}
             
             # Simple check if any VMs exist
-            vm_check = subprocess.run("powershell.exe -Command \"Get-VM\"", shell=True, capture_output=True, text=True)
+            vm_check = subprocess.run(
+                ["powershell.exe", "-NoProfile", "-Command", "Get-VM"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
             has_vms = bool(vm_check.stdout.strip())
             
             return {
@@ -36,6 +51,8 @@ class HyperVIsolationBoundary:
                 "has_vms": has_vms,
                 "details": result.stdout.strip()
             }
+        except subprocess.TimeoutExpired:
+            return {"ready": False, "reason": "PowerShell check timed out"}
         except Exception as e:
             return {"ready": False, "reason": str(e)}
 

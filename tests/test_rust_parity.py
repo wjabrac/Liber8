@@ -1,7 +1,9 @@
 import unittest
 import time
+from unittest.mock import patch
 from src.rust_wrappers.ranker import RustRankerWrapper, PythonRanker, RUST_AVAILABLE
 from src.contracts.models import TagSet, MemoryBlock
+import src.rust_wrappers.ranker as ranker_module
 
 class TestRustParity(unittest.TestCase):
     def setUp(self):
@@ -51,6 +53,38 @@ class TestRustParity(unittest.TestCase):
         
         print(f"Rust scored 1k items in {rust_dur*1000:.2f}ms")
         print(f"Python scored 1k items in {py_dur*1000:.2f}ms")
+
+    def test_ranker_duplicate_content_round_trip(self):
+        duplicated = [
+            MemoryBlock(
+                content="duplicate content",
+                tags=TagSet("1.0", {"id": i}),
+                provenance={},
+                lane="episodic",
+                confidence=1.0,
+                updated_at="2026-04-04T12:00:00Z",
+            )
+            for i in range(2)
+        ]
+        duplicated.append(
+            MemoryBlock(
+                content="other content",
+                tags=TagSet("1.0", {"id": 2}),
+                provenance={},
+                lane="episodic",
+                confidence=1.0,
+                updated_at="2026-04-04T12:00:00Z",
+            )
+        )
+
+        wrapper = RustRankerWrapper(config_enabled=False)
+        wrapper.rust_enabled = True
+        with patch.object(ranker_module, "retrieval_ranker", create=True) as mock_ranker:
+            mock_ranker.rank_blocks.return_value = ["duplicate content", "duplicate content", "other content"]
+            ranked = wrapper.rank(duplicated, "duplicate")
+
+        self.assertEqual(len(ranked), len(duplicated))
+        self.assertEqual(sum(1 for b in ranked if b.content == "duplicate content"), 2)
 
 if __name__ == "__main__":
     unittest.main()
