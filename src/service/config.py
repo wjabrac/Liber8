@@ -7,6 +7,12 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from src.cognition.config import EngineConfig
 from src.ops.retention import RunRetentionPolicy
 
