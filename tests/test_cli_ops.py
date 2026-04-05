@@ -24,6 +24,8 @@ class TestCliOps(unittest.TestCase):
             self.assertIn("tool_policy_mode: write", output)
             self.assertIn("tool_protocol: mcp", output)
             self.assertIn("versioning_mode: composite", output)
+            self.assertIn("service_readyz_status_code: 200", output)
+            self.assertIn("service_readyz_status: ok", output)
 
     def test_service_health_reports_api_shape(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

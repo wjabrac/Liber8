@@ -19,7 +19,7 @@ from src.replay.replayer import TraceReplayer
 from src.runs.session import list_run_dirs, prune_run_dirs
 from src.service.app import Libr8Service
 from src.service.config import ServiceConfig
-from src.service.http import serve_forever
+from src.service.http import dispatch_http_request, serve_forever
 from src.service.migrations import list_postgres_migrations
 
 
@@ -39,6 +39,18 @@ def _allowlist_path_exists(path_value: str) -> bool:
 
     target = _normalize(candidate.name)
     return any(_normalize(child.name) == target for child in parent.iterdir())
+
+
+def _dir_writable(path: Path) -> bool:
+    if not path.exists() or not path.is_dir():
+        return False
+    probe = path / ".write_probe"
+    try:
+        probe.write_text("ok", encoding="utf-8")
+        probe.unlink()
+        return True
+    except OSError:
+        return False
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
@@ -208,12 +220,15 @@ def _cmd_healthcheck(args: argparse.Namespace) -> int:
     except ImportError:
         has_dotenv = False
 
+    service = Libr8Service(ServiceConfig(storage_dir=str(storage_dir), cognition_backend=args.backend))
+    readyz_status, readyz_payload = dispatch_http_request(service, "GET", "/readyz")
+
     checks = {
         "python": sys.version.split()[0],
         "platform": platform.platform(),
         "storage_dir": str(storage_dir.resolve()),
         "runs_dir": str(runs_dir.resolve()),
-        "runs_dir_writable": runs_dir.exists() and runs_dir.is_dir(),
+        "runs_dir_writable": _dir_writable(runs_dir),
         "run_count": len(list_run_dirs(storage_dir)),
         "default_allowlist": config.path_allowlists[0] if config.path_allowlists else "",
         "default_allowlist_exists": bool(config.path_allowlists) and _allowlist_path_exists(config.path_allowlists[0]),
@@ -227,13 +242,19 @@ def _cmd_healthcheck(args: argparse.Namespace) -> int:
         "venv_exists": has_venv,
         "dependency_psycopg": has_psycopg,
         "dependency_dotenv": has_dotenv,
+        "service_readyz_status_code": readyz_status,
+        "service_readyz_status": readyz_payload.get("status", "unknown"),
     }
 
     print("--- LIBR8 HEALTHCHECK ---")
     for key, value in checks.items():
         print(f"{key}: {value}")
 
-    healthy = bool(checks["runs_dir_writable"] and checks["default_allowlist_exists"] and has_venv)
+    healthy = bool(
+        checks["runs_dir_writable"]
+        and checks["default_allowlist_exists"]
+        and checks["service_readyz_status_code"] == 200
+    )
     print(f"healthcheck_status: {'ok' if healthy else 'fail'}")
     return 0 if healthy else 1
 
