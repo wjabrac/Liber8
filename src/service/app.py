@@ -15,6 +15,7 @@ from src.service.artifacts import index_run_artifacts
 from src.service.config import ServiceConfig
 from src.service.models import RunRecord
 from src.service.state import ServiceStateStore, build_state_store
+from src.service.migrations import MigrationRunner
 from src.service.workflows.approvals import ApprovalRequest, InMemoryApprovalQueue
 from src.service.workflows.exports import ExportJob, InMemoryExportJobQueue
 
@@ -37,6 +38,15 @@ class Libr8Service:
         self.export_queue = export_queue or InMemoryExportJobQueue()
         self.storage_dir = Path(config.storage_dir)
         self.storage_dir.mkdir(parents=True, exist_ok=True)
+
+        if config.auto_migrate and config.postgres_dsn:
+            try:
+                runner = MigrationRunner(config.postgres_dsn)
+                applied = runner.apply_migrations()
+                if applied:
+                    self.logger.emit("auto_migration_complete", applied_count=len(applied))
+            except Exception as e:
+                self.logger.emit("auto_migration_failed", error=str(e))
 
     def _build_engine(self) -> CognitionEngine:
         return CognitionEngine(self.config.to_engine_config())

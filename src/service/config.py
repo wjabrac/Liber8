@@ -45,6 +45,7 @@ class ServiceConfig:
     log_level: str = field(default_factory=lambda: os.getenv("LIBR8_LOG_LEVEL", "INFO"))
     log_json: bool = field(default_factory=lambda: _env_flag("LIBR8_LOG_JSON", True))
     api_key: str | None = field(default_factory=lambda: os.getenv("LIBR8_API_KEY"))
+    auto_migrate: bool = field(default_factory=lambda: _env_flag("LIBR8_AUTO_MIGRATE", False))
     allow_unauthenticated_non_loopback: bool = field(default_factory=lambda: _env_flag("LIBR8_ALLOW_UNAUTHENTICATED_NON_LOOPBACK", False))
     require_isolation_for_writes: bool = field(default_factory=lambda: _env_flag("LIBR8_REQUIRE_ISOLATION_FOR_WRITES", False))
     execution_isolation_backend: str = field(default_factory=lambda: os.getenv("LIBR8_EXECUTION_ISOLATION_BACKEND", "none"))
