@@ -129,7 +129,7 @@ class Libr8Service:
         except Exception:
             storage_writable = False
 
-        ready = storage_writable and not (
+        ready = storage_writable and self.state_store.test_connection() and not (
             self.config.require_isolation_for_writes and self.config.execution_isolation_backend in {"", "none"}
         )
         return {
@@ -137,6 +137,7 @@ class Libr8Service:
             "service_type": "api",
             "storage_dir": str(self.storage_dir.resolve()),
             "storage_writable": storage_writable,
+            "state_store_reachable": self.state_store.test_connection(),
             "backend": self.config.cognition_backend,
             "run_count": len(list_run_dirs(self.storage_dir)),
             "state_store": self.state_store.summary(),

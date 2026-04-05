@@ -19,6 +19,7 @@ class ServiceStateStore(Protocol):
     def update_record(self, task_id: str, **updates: str | None) -> RunRecord | None: ...
     def get_record(self, task_id: str) -> RunRecord | None: ...
     def summary(self) -> Dict[str, object]: ...
+    def test_connection(self) -> bool: ...
 
 
 class InMemoryServiceStateStore:
@@ -49,7 +50,11 @@ class InMemoryServiceStateStore:
             "backend": "memory",
             "records": len(self._records),
             "statuses": statuses,
+            "reachable": True,
         }
+
+    def test_connection(self) -> bool:
+        return True
 
 
 class PlannedPostgresStateStore:
@@ -71,11 +76,15 @@ class PlannedPostgresStateStore:
         return {
             "backend": "postgres",
             "configured": bool(self.dsn),
+            "reachable": False,
             "implemented": False,
             "fallback_backend": fallback_summary["backend"],
             "fallback_records": fallback_summary["records"],
             "schema_path": str(postgres_schema_path()),
         }
+
+    def test_connection(self) -> bool:
+        return False
 
 
 def build_state_store(backend: str, postgres_dsn: str | None = None) -> ServiceStateStore:

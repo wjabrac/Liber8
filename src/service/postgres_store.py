@@ -83,15 +83,28 @@ class PostgresServiceStateStore:
             failure_class=row[8],
         )
 
+    def test_connection(self) -> bool:
+        """Proactively checks if the database is reachable and the schema is present."""
+        if psycopg is None:
+            return False
+        try:
+            with psycopg.connect(self.dsn, connect_timeout=2) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1 FROM service_runs LIMIT 1")
+            return True
+        except Exception:
+            return False
+
     def summary(self) -> Dict[str, object]:
         try:
-            with psycopg.connect(self.dsn) as conn:
+            with psycopg.connect(self.dsn, connect_timeout=2) as conn:
                 with conn.cursor() as cur:
                     cur.execute("SELECT status, COUNT(*) FROM service_runs GROUP BY status")
                     rows = cur.fetchall()
             return {
                 "backend": "postgres",
                 "configured": True,
+                "reachable": True,
                 "implemented": True,
                 "statuses": {status: count for status, count in rows},
             }
@@ -99,7 +112,8 @@ class PostgresServiceStateStore:
             return {
                 "backend": "postgres",
                 "configured": True,
-                "implemented": False,
+                "reachable": False,
+                "implemented": True,
                 "error": str(e),
                 "statuses": {},
             }

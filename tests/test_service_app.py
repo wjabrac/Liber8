@@ -18,11 +18,13 @@ class TestServiceApp(unittest.TestCase):
 
     def test_health_reports_planned_postgres_backend(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
+            # Unreachable postgres should result in degraded status
             service = Libr8Service(ServiceConfig(storage_dir=tmpdir, state_store_backend="postgres", postgres_dsn="postgres://example"))
             health = service.health()
 
             self.assertEqual(health["state_store"]["backend"], "postgres")
-            self.assertFalse(health["state_store"]["implemented"])
+            self.assertEqual(health["status"], "degraded")
+            self.assertFalse(health["state_store_reachable"])
 
     def test_submit_task_records_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
