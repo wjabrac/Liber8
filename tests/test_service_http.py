@@ -15,6 +15,14 @@ class TestServiceHttp(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(payload["service_type"], "api")
 
+    def test_ready_route(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir))
+            status, payload = dispatch_http_request(service, "GET", "/readyz")
+
+            self.assertEqual(status, 200)
+            self.assertEqual(payload["status"], "ok")
+
     def test_run_submission_route(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             service = Libr8Service(ServiceConfig(storage_dir=tmpdir))

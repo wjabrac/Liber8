@@ -118,13 +118,25 @@ class Libr8Service:
 
     def health(self) -> Dict[str, Any]:
         engine_config = self.config.to_engine_config()
-        ready = not (
+        
+        # Check storage writability
+        storage_writable = False
+        try:
+            test_file = self.storage_dir / ".healthcheck"
+            test_file.write_text("ok")
+            test_file.unlink()
+            storage_writable = True
+        except Exception:
+            storage_writable = False
+
+        ready = storage_writable and not (
             self.config.require_isolation_for_writes and self.config.execution_isolation_backend in {"", "none"}
         )
         return {
             "status": "ok" if ready else "degraded",
             "service_type": "api",
             "storage_dir": str(self.storage_dir.resolve()),
+            "storage_writable": storage_writable,
             "backend": self.config.cognition_backend,
             "run_count": len(list_run_dirs(self.storage_dir)),
             "state_store": self.state_store.summary(),
