@@ -65,14 +65,15 @@ class Libr8Service:
         self.state_store.record_submission(record)
         return task_id, run_dir, record
 
-    def _execute_task(self, task_id: str, task: str, run_dir: Path) -> Dict[str, Any]:
+     def _execute_task(self, task_id: str, task: str, run_dir: Path) -> Dict[str, Any]:
         self.logger.emit("task_submitted", task_id=task_id, task=task, run_id=run_dir.name)
 
         engine = self._build_engine()
         event = engine.run(task, run_dir)
+        final_status = "completed" if event.outcome in {"success", "degraded"} else "failed"
         updated = self.state_store.update_record(
             task_id,
-            status="completed" if event.outcome in {"success", "degraded"} else "failed",
+            status=final_status,
             outcome=event.outcome,
             failure_class=event.failure_class,
             artifact_dir=str(run_dir),
@@ -82,7 +83,7 @@ class Libr8Service:
         return {
             "task_id": task_id,
             "run_id": run_dir.name,
-            "status": updated.status if updated else record.status,
+            "status": updated.status if updated else final_status,
             "outcome": event.outcome,
             "artifact_dir": str(run_dir),
             "failure_class": event.failure_class,

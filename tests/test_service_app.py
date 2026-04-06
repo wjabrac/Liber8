@@ -103,7 +103,5 @@ class TestServiceApp(unittest.TestCase):
 
             self.assertIsNotNone(record)
             self.assertIn(record["status"], {"completed", "failed"})
-
-
 if __name__ == "__main__":
     unittest.main()
