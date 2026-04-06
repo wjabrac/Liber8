@@ -1,4 +1,5 @@
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -69,6 +70,39 @@ class TestServiceApp(unittest.TestCase):
 
             self.assertIn("config", snapshot)
             self.assertTrue(snapshot["config"]["postgres_dsn_configured"])
+
+    def test_approval_and_export_queues_persist_on_restart(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, cognition_backend="fallback"))
+            approval = service.submit_approval("task-1", "tool.write", "needs approval")
+            run = service.submit_task("summarize architecture")
+            job = service.submit_export_job(run["run_id"])
+
+            restarted = Libr8Service(ServiceConfig(storage_dir=tmpdir, cognition_backend="fallback"))
+            pending = restarted.list_pending_approvals()
+            jobs = restarted.list_export_jobs()
+
+            self.assertEqual(len(pending["pending"]), 1)
+            self.assertEqual(pending["pending"][0]["request_id"], approval["request_id"])
+            self.assertEqual(len(jobs["jobs"]), 1)
+            self.assertEqual(jobs["jobs"][0]["job_id"], job["job_id"])
+
+    def test_submit_task_async_records_and_completes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, cognition_backend="fallback"))
+            queued = service.submit_task_async("summarize architecture")
+            self.assertEqual(queued["status"], "queued")
+
+            deadline = time.time() + 3
+            record = None
+            while time.time() < deadline:
+                record = service.get_task(queued["task_id"])
+                if record and record["status"] in {"completed", "failed"}:
+                    break
+                time.sleep(0.05)
+
+            self.assertIsNotNone(record)
+            self.assertIn(record["status"], {"completed", "failed"})
 
 
 if __name__ == "__main__":

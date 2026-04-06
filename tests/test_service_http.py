@@ -1,4 +1,5 @@
 import tempfile
+import time
 import unittest
 
 from src.service.app import Libr8Service
@@ -33,6 +34,25 @@ class TestServiceHttp(unittest.TestCase):
             self.assertEqual(lookup_status, 200)
             self.assertEqual(record["task_id"], payload["task_id"])
             self.assertTrue(payload["artifacts"])
+
+    def test_async_run_submission_route(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir))
+            status, payload = dispatch_http_request(service, "POST", "/v1/runs/async", {"task": "summarize architecture"})
+            self.assertEqual(status, 202)
+            self.assertEqual(payload["status"], "queued")
+
+            deadline = time.time() + 3
+            record = None
+            while time.time() < deadline:
+                lookup_status, record = dispatch_http_request(service, "GET", f"/v1/runs/{payload['task_id']}")
+                self.assertEqual(lookup_status, 200)
+                if record["status"] in {"completed", "failed"}:
+                    break
+                time.sleep(0.05)
+
+            self.assertIsNotNone(record)
+            self.assertIn(record["status"], {"completed", "failed"})
 
     def test_approval_routes(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
