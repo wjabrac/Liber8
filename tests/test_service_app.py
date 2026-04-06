@@ -1,4 +1,5 @@
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -86,6 +87,21 @@ class TestServiceApp(unittest.TestCase):
             self.assertEqual(len(jobs["jobs"]), 1)
             self.assertEqual(jobs["jobs"][0]["job_id"], job["job_id"])
 
+    def test_submit_task_async_records_and_completes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, cognition_backend="fallback"))
+            queued = service.submit_task_async("summarize architecture")
+            self.assertEqual(queued["status"], "queued")
 
+            deadline = time.time() + 3
+            record = None
+            while time.time() < deadline:
+                record = service.get_task(queued["task_id"])
+                if record and record["status"] in {"completed", "failed"}:
+                    break
+                time.sleep(0.05)
+
+            self.assertIsNotNone(record)
+            self.assertIn(record["status"], {"completed", "failed"})
 if __name__ == "__main__":
     unittest.main()

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import uuid
+from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
+from threading import Lock
 from typing import Any, Dict, Optional
 
 from src.cognition.engine import CognitionEngine
@@ -40,6 +42,9 @@ class Libr8Service:
         self._service_state_dir.mkdir(parents=True, exist_ok=True)
         self.approval_queue = approval_queue or FileBackedApprovalQueue(self._service_state_dir / "approvals.json")
         self.export_queue = export_queue or FileBackedExportJobQueue(self._service_state_dir / "exports.json")
+        self._async_executor: ThreadPoolExecutor | None = None
+        self._async_futures: Dict[str, Future[Dict[str, Any]]] = {}
+        self._async_lock = Lock()
 
         if config.auto_migrate and config.postgres_dsn:
             try:
@@ -53,18 +58,22 @@ class Libr8Service:
     def _build_engine(self) -> CognitionEngine:
         return CognitionEngine(self.config.to_engine_config())
 
-    def submit_task(self, task: str) -> Dict[str, Any]:
+    def _new_record(self, task: str, status: str) -> tuple[str, Path, RunRecord]:
         task_id = str(uuid.uuid4())
         run_dir = self.storage_dir / ".runs" / task_id
-        record = RunRecord(task_id=task_id, run_id=run_dir.name, task=task, status="running", artifact_dir=str(run_dir))
+        record = RunRecord(task_id=task_id, run_id=run_dir.name, task=task, status=status, artifact_dir=str(run_dir))
         self.state_store.record_submission(record)
+        return task_id, run_dir, record
+
+     def _execute_task(self, task_id: str, task: str, run_dir: Path) -> Dict[str, Any]:
         self.logger.emit("task_submitted", task_id=task_id, task=task, run_id=run_dir.name)
 
         engine = self._build_engine()
         event = engine.run(task, run_dir)
+        final_status = "completed" if event.outcome in {"success", "degraded"} else "failed"
         updated = self.state_store.update_record(
             task_id,
-            status="completed" if event.outcome in {"success", "degraded"} else "failed",
+            status=final_status,
             outcome=event.outcome,
             failure_class=event.failure_class,
             artifact_dir=str(run_dir),
@@ -74,11 +83,44 @@ class Libr8Service:
         return {
             "task_id": task_id,
             "run_id": run_dir.name,
-            "status": updated.status if updated else record.status,
+            "status": updated.status if updated else final_status,
             "outcome": event.outcome,
             "artifact_dir": str(run_dir),
             "failure_class": event.failure_class,
             "artifacts": artifact_records,
+        }
+
+    def submit_task(self, task: str) -> Dict[str, Any]:
+        task_id, run_dir, _ = self._new_record(task, "running")
+        return self._execute_task(task_id, task, run_dir)
+
+    def _ensure_async_executor(self) -> ThreadPoolExecutor:
+        if self._async_executor is None:
+            self._async_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="libr8-task")
+        return self._async_executor
+
+    def _run_async_task(self, task_id: str, task: str, run_dir: Path) -> Dict[str, Any]:
+        self.state_store.update_record(task_id, status="running")
+        try:
+            return self._execute_task(task_id, task, run_dir)
+        finally:
+            with self._async_lock:
+                self._async_futures.pop(task_id, None)
+
+    def submit_task_async(self, task: str) -> Dict[str, Any]:
+        task_id, run_dir, _ = self._new_record(task, "queued")
+        future = self._ensure_async_executor().submit(self._run_async_task, task_id, task, run_dir)
+        with self._async_lock:
+            self._async_futures[task_id] = future
+        self.logger.emit("task_queued", task_id=task_id, task=task, run_id=run_dir.name)
+        return {
+            "task_id": task_id,
+            "run_id": run_dir.name,
+            "status": "queued",
+            "artifact_dir": str(run_dir),
+            "outcome": None,
+            "failure_class": None,
+            "artifacts": [],
         }
 
     def get_task(self, task_id: str) -> Dict[str, Any] | None:

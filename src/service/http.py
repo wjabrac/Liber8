@@ -85,6 +85,11 @@ def dispatch_http_request(
         if not task:
             return 400, {"error": "task is required"}
         return 202, service.submit_task(task)
+    if method == "POST" and path == "/v1/runs/async":
+        task = str(body.get("task", "")).strip()
+        if not task:
+            return 400, {"error": "task is required"}
+        return 202, service.submit_task_async(task)
     if method == "GET" and path.startswith("/v1/runs/"):
         task_id = path.rsplit("/", 1)[-1]
         record = service.get_task(task_id)
