@@ -139,15 +139,29 @@ class Libr8Service:
         except Exception:
             storage_writable = False
 
-        ready = storage_writable and self.state_store.test_connection() and not (
-            self.config.require_isolation_for_writes and self.config.execution_isolation_backend in {"", "none"}
-        )
+        state_store_reachable = self.state_store.test_connection()
+        isolation_required = self.config.require_isolation_for_writes
+        isolation_ready = not (isolation_required and self.config.execution_isolation_backend in {"", "none"})
+        default_allowlist = engine_config.path_allowlists[0] if engine_config.path_allowlists else ""
+        default_allowlist_exists = bool(default_allowlist) and Path(default_allowlist).exists()
+
+        readiness_reasons: list[str] = []
+        if not storage_writable:
+            readiness_reasons.append("storage_unwritable")
+        if not state_store_reachable:
+            readiness_reasons.append("state_store_unreachable")
+        if not isolation_ready:
+            readiness_reasons.append("isolation_required_but_unconfigured")
+        if not default_allowlist_exists:
+            readiness_reasons.append("default_allowlist_missing")
+
+        ready = storage_writable and state_store_reachable and isolation_ready
         return {
             "status": "ok" if ready else "degraded",
             "service_type": "api",
             "storage_dir": str(self.storage_dir.resolve()),
             "storage_writable": storage_writable,
-            "state_store_reachable": self.state_store.test_connection(),
+            "state_store_reachable": state_store_reachable,
             "backend": self.config.cognition_backend,
             "run_count": len(list_run_dirs(self.storage_dir)),
             "state_store": self.state_store.summary(),
@@ -155,7 +169,9 @@ class Libr8Service:
             "export_job_count": len(self.export_queue.list_all()),
             "require_isolation_for_writes": self.config.require_isolation_for_writes,
             "execution_isolation_backend": self.config.execution_isolation_backend,
-            "default_allowlist": engine_config.path_allowlists[0] if engine_config.path_allowlists else "",
+            "default_allowlist": default_allowlist,
+            "default_allowlist_exists": default_allowlist_exists,
+            "readiness_reasons": readiness_reasons,
         }
 
     def retention_preview(self, policy: Optional[RunRetentionPolicy] = None) -> Dict[str, Any]:
