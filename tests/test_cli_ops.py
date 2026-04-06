@@ -35,6 +35,21 @@ class TestCliOps(unittest.TestCase):
             self.assertIn("service_readyz_status_code: 200", output)
             self.assertIn("service_readyz_status: ok", output)
 
+    def test_healthcheck_handles_stale_write_probe_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            storage_dir = Path(tmpdir)
+            runs_dir = storage_dir / ".runs"
+            runs_dir.mkdir(parents=True, exist_ok=True)
+            (runs_dir / ".write_probe").mkdir()
+
+            stdout = io.StringIO()
+            with redirect_stdout(stdout):
+                rc = cli_main(["healthcheck", "--storage-dir", tmpdir, "--backend", "fallback"])
+
+            output = stdout.getvalue()
+            self.assertEqual(rc, 0)
+            self.assertIn("healthcheck_status: ok", output)
+
     def test_service_health_reports_api_shape(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             stdout = io.StringIO()

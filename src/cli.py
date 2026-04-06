@@ -214,7 +214,7 @@ def _cmd_healthcheck(args: argparse.Namespace) -> int:
     # Environment validation
     venv_path = Path(".venv")
     has_venv = venv_path.exists() and venv_path.is_dir()
-    
+
     try:
         import psycopg
         has_psycopg = True
