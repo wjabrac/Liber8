@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import subprocess
 import json
+import time
 from typing import Any, Callable, Dict, List, Optional
 from .isolation import IsolationRequest, IsolationResult, ExecutionIsolationBoundary
 
@@ -41,6 +42,54 @@ class HyperVManager:
         except json.JSONDecodeError:
             return []
 
+    def get_vm_state(self, vm_name: str) -> str:
+        """Returns the state of a specific VM (e.g., Running, Off)."""
+        cmd = f"Get-VM -Name '{vm_name}' | Select-Object -ExpandProperty State"
+        res = self.run_ps(cmd)
+        return res.stdout.strip()
+
+    def start_vm(self, vm_name: str) -> bool:
+        """Starts a VM if it is not already running."""
+        state = self.get_vm_state(vm_name)
+        if state == "Running":
+            return True
+        res = self.run_ps(f"Start-VM -Name '{vm_name}'")
+        return res.returncode == 0
+
+    def invoke_guest_command(self, vm_name: str, script_block: str, timeout: int = 30) -> Dict[str, Any]:
+        """Executes a command inside the guest via PowerShell Direct."""
+        # PowerShell Direct uses Invoke-Command -VMName
+        # Escaping quotes for the shell command
+        escaped_script = script_block.replace("\"", "\\\"")
+        cmd = f"Invoke-Command -VMName '{vm_name}' -ScriptBlock {{ {escaped_script} }} | ConvertTo-Json"
+        
+        start_time = time.monotonic()
+        res = self.run_ps(cmd)
+        duration = time.monotonic() - start_time
+        
+        if res.returncode != 0:
+            return {
+                "status": "error",
+                "stdout": res.stdout,
+                "stderr": res.stderr,
+                "exit_code": res.returncode,
+                "duration": duration
+            }
+            
+        try:
+            output = json.loads(res.stdout) if res.stdout.strip() else None
+            return {
+                "status": "success",
+                "output": output,
+                "duration": duration
+            }
+        except json.JSONDecodeError:
+            return {
+                "status": "success",
+                "output": res.stdout.strip(),
+                "duration": duration
+            }
+
 
 class HyperVIsolationBoundary:
     backend_name = "hyperv"
@@ -65,6 +114,7 @@ class HyperVIsolationBoundary:
             switches = self.manager.get_switches()
             
             vm_exists = any(v.get("Name") == self.vm_name for v in vms) if self.vm_name else False
+            vm_state = self.manager.get_vm_state(self.vm_name) if vm_exists and self.vm_name else "Unknown"
             
             return {
                 "ready": service_running and module_available,
@@ -72,6 +122,7 @@ class HyperVIsolationBoundary:
                 "module_available": module_available,
                 "vm_configured": bool(self.vm_name),
                 "vm_exists": vm_exists,
+                "vm_state": vm_state,
                 "vm_count": len(vms),
                 "switch_count": len(switches),
             }
@@ -80,6 +131,14 @@ class HyperVIsolationBoundary:
 
     def execute(self, request: IsolationRequest, func: Callable[..., Any]) -> IsolationResult:
         # Enforce boundary existence and readiness
+        if not self.vm_name:
+            return IsolationResult(
+                status="error",
+                output="Hyper-V VM name not configured",
+                error_class="configuration_error",
+                backend=self.backend_name
+            )
+
         ready_status = self.check_ready()
         if not ready_status["ready"]:
             return IsolationResult(
@@ -97,15 +156,49 @@ class HyperVIsolationBoundary:
                 backend=self.backend_name
             )
 
-        # Implementation Note: 
-        # Actual guest orchestration will use:
-        # 1. Start-VM (if not running)
-        # 2. Invoke-Command -VMName ... (PowerShell Direct)
-        # 3. Copy-Item -ToSession ... (for payload injection)
+        # 1. Ensure VM is running
+        if ready_status["vm_state"] != "Running":
+            started = self.manager.start_vm(self.vm_name)
+            if not started:
+                return IsolationResult(
+                    status="error",
+                    output=f"Failed to start Hyper-V VM '{self.vm_name}'",
+                    error_class="vm_start_error",
+                    backend=self.backend_name
+                )
+            # Wait a moment for Integration Services to be ready (minimal wait)
+            time.sleep(2)
+
+        # 2. Prepare payload injection
+        # Support 'shell' tool specifically via PowerShell Direct
+        if request.tool_name == "shell":
+            command = request.arguments.get("command")
+            if not command:
+                return IsolationResult(
+                    status="error",
+                    output="Shell command missing from arguments",
+                    error_class="argument_error",
+                    backend=self.backend_name
+                )
+            
+            res = self.manager.invoke_guest_command(self.vm_name, command)
+            if res["status"] == "success":
+                return IsolationResult(
+                    status="success",
+                    output=res["output"],
+                    backend=self.backend_name
+                )
+            else:
+                return IsolationResult(
+                    status="error",
+                    output=res.get("stderr") or res.get("stdout") or "Unknown guest error",
+                    error_class="guest_execution_error",
+                    backend=self.backend_name
+                )
 
         return IsolationResult(
             status="error",
-            output="Hyper-V guest execution (PowerShell Direct) not yet implemented",
+            output=f"Hyper-V guest execution for tool '{request.tool_name}' not yet fully implemented",
             error_class="not_implemented",
             backend=self.backend_name
         )
