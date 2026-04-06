@@ -10,6 +10,8 @@ from src.service.app import Libr8Service
 from src.service.migrations import list_postgres_migrations
 from src.service.schema import service_endpoint_catalog
 
+MAX_REQUEST_BODY_BYTES = 1_048_576
+
 
 def dispatch_http_request(
     service: Libr8Service, 
@@ -83,6 +85,11 @@ def dispatch_http_request(
         if not task:
             return 400, {"error": "task is required"}
         return 202, service.submit_task(task)
+    if method == "POST" and path == "/v1/runs/async":
+        task = str(body.get("task", "")).strip()
+        if not task:
+            return 400, {"error": "task is required"}
+        return 202, service.submit_task_async(task)
     if method == "GET" and path.startswith("/v1/runs/"):
         task_id = path.rsplit("/", 1)[-1]
         record = service.get_task(task_id)
@@ -94,6 +101,14 @@ def dispatch_http_request(
 
 def build_handler_class(service: Libr8Service):
     class Libr8RequestHandler(BaseHTTPRequestHandler):
+        def _write_json_response(self, status: int, payload: Dict[str, Any]) -> None:
+            encoded = json.dumps(payload).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+
         def do_GET(self) -> None:
             self._handle("GET")
 
@@ -101,19 +116,46 @@ def build_handler_class(service: Libr8Service):
             self._handle("POST")
 
         def _handle(self, method: str) -> None:
-            length = int(self.headers.get("Content-Length", "0"))
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                self._write_json_response(400, {"error": "invalid content-length"})
+                return
+
+            if length < 0:
+                self._write_json_response(400, {"error": "invalid content-length"})
+                return
+
+            if length > MAX_REQUEST_BODY_BYTES:
+                self._write_json_response(413, {"error": "request body too large"})
+                return
+
             raw = self.rfile.read(length) if length else b""
-            body = json.loads(raw.decode("utf-8")) if raw else {}
-            
+
+            if method == "POST":
+                content_type = self.headers.get("Content-Type", "")
+                if content_type and "application/json" not in content_type.lower():
+                    self._write_json_response(415, {"error": "content-type must be application/json"})
+                    return
+
+            try:
+                body = json.loads(raw.decode("utf-8")) if raw else {}
+                if not isinstance(body, dict):
+                    self._write_json_response(400, {"error": "request body must be a JSON object"})
+                    return
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                self._write_json_response(400, {"error": "malformed json"})
+                return
+
             headers = {k: v for k, v in self.headers.items()}
-            status, payload = dispatch_http_request(service, method, self.path, body, headers)
-            
-            encoded = json.dumps(payload).encode("utf-8")
-            self.send_response(status)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
+            try:
+                status, payload = dispatch_http_request(service, method, self.path, body, headers)
+            except Exception:
+                service.logger.emit("request_error", method=method, path=self.path)
+                self._write_json_response(500, {"error": "internal_server_error"})
+                return
+
+            self._write_json_response(status, payload)
 
         def log_message(self, format: str, *args: Any) -> None:
             return None
