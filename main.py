@@ -10,11 +10,17 @@ from src.cli import main as cli_main
 
 def main(argv: Sequence[str] | None = None) -> int:
     if argv is None:
-        if len(sys.argv) > 1:
-            argv = sys.argv[1:]
-        else:
-            argv = ["run", "run cognition loop", "--storage-dir", ".storage", "--backend", "fallback"]
-    return cli_main(argv)
+        argv = sys.argv[1:]
+
+    if not argv:
+        print("No command provided; showing CLI help.")
+        argv = ["--help"]
+
+    try:
+        return cli_main(argv)
+    except SystemExit as exc:
+        code = exc.code
+        return code if isinstance(code, int) else 0
 
 
 if __name__ == "__main__":

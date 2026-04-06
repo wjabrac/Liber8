@@ -70,6 +70,22 @@ class TestServiceApp(unittest.TestCase):
             self.assertIn("config", snapshot)
             self.assertTrue(snapshot["config"]["postgres_dsn_configured"])
 
+    def test_approval_and_export_queues_persist_on_restart(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            service = Libr8Service(ServiceConfig(storage_dir=tmpdir, cognition_backend="fallback"))
+            approval = service.submit_approval("task-1", "tool.write", "needs approval")
+            run = service.submit_task("summarize architecture")
+            job = service.submit_export_job(run["run_id"])
+
+            restarted = Libr8Service(ServiceConfig(storage_dir=tmpdir, cognition_backend="fallback"))
+            pending = restarted.list_pending_approvals()
+            jobs = restarted.list_export_jobs()
+
+            self.assertEqual(len(pending["pending"]), 1)
+            self.assertEqual(pending["pending"][0]["request_id"], approval["request_id"])
+            self.assertEqual(len(jobs["jobs"]), 1)
+            self.assertEqual(jobs["jobs"][0]["job_id"], job["job_id"])
+
 
 if __name__ == "__main__":
     unittest.main()
