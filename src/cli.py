@@ -45,11 +45,17 @@ def _allowlist_path_exists(path_value: str) -> bool:
 def _dir_writable(path: Path) -> bool:
     if not path.exists() or not path.is_dir():
         return False
-    probe = path / ".write_probe"
     try:
-        probe.write_text("ok", encoding="utf-8")
-        probe.unlink()
-        return True
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            prefix=".write_probe_",
+            dir=path,
+            delete=True,
+        ) as probe:
+            probe.write("ok")
+            probe.flush()
+            return True
     except OSError:
         return False
 

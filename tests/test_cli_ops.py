@@ -7,12 +7,19 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.cli import main as cli_main
+from src.cli import _dir_writable
 from src.cognition.config import EngineConfig
 from src.cognition.engine import CognitionEngine
 from src.runs.session import create_run_dir, list_run_dirs
 
 
 class TestCliOps(unittest.TestCase):
+    def test_dir_writable_uses_unique_probe_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            runs_dir = Path(tmpdir)
+            (runs_dir / ".write_probe").mkdir()
+            self.assertTrue(_dir_writable(runs_dir))
+
     def test_healthcheck_reports_ready_local_runtime(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             stdout = io.StringIO()
