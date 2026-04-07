@@ -50,5 +50,37 @@ class TestLivePostgres(unittest.TestCase):
             record = service.state.get_record(result["task_id"])
             self.assertIsNotNone(record)
 
+    @unittest.skipUnless(os.environ.get("LIVE_POSTGRES"), "Requires active PostgreSQL to test live store")
+    def test_postgres_run_record_durability(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config = ServiceConfig(
+                storage_dir=tmpdir,
+                state_store_backend="postgres",
+                postgres_dsn=self.dsn,
+                auto_migrate=True
+            )
+            
+            # 1. Start first instance and submit task
+            service1 = Libr8Service(config)
+            result = service1.submit_task("postgres durability test task")
+            task_id = result["task_id"]
+            
+            # 2. "Restart" - create new service instance with SAME database
+            service2 = Libr8Service(config)
+            
+            # 3. Verify backend is NOT memory
+            backend = service2.state_store.summary()["backend"]
+            self.assertNotEqual(
+                backend,
+                "memory",
+                f"test_durability requires a durable state store, got backend={backend!r}",
+            )
+
+            # 4. Verify run record still exists after restart.
+            record = service2.get_task(task_id)
+            self.assertIsNotNone(record)
+            self.assertEqual(record["task_id"], task_id)
+            self.assertEqual(record["task"], "postgres durability test task")
+
 if __name__ == "__main__":
     unittest.main()

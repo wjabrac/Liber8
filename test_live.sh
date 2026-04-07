@@ -31,7 +31,8 @@ SERVICE_PID=$!
 echo "Waiting for service to be ready..."
 MAX_RETRIES=10
 for ((attempt=1; attempt<=MAX_RETRIES; attempt++)); do
-    if curl -fsS "http://127.0.0.1:$PORT/healthz" > /dev/null 2>&1; then
+    echo "Attempt $attempt..."
+    if curl -fsS -v -o /dev/null "http://127.0.0.1:$PORT/healthz"; then
         break
     fi
 

@@ -65,7 +65,7 @@ class Libr8Service:
         self.state_store.record_submission(record)
         return task_id, run_dir, record
 
-     def _execute_task(self, task_id: str, task: str, run_dir: Path) -> Dict[str, Any]:
+    def _execute_task(self, task_id: str, task: str, run_dir: Path) -> Dict[str, Any]:
         self.logger.emit("task_submitted", task_id=task_id, task=task, run_id=run_dir.name)
 
         engine = self._build_engine()
