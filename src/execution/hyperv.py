@@ -5,6 +5,8 @@ from __future__ import annotations
 import subprocess
 import json
 import time
+import textwrap
+import base64
 from typing import Any, Callable, Dict, List, Optional
 from .isolation import IsolationRequest, IsolationResult, ExecutionIsolationBoundary
 
@@ -16,6 +18,10 @@ class HyperVManager:
         """Runs a PowerShell command and returns the result."""
         full_cmd = f"powershell.exe -NoProfile -NonInteractive -Command \"{command}\""
         return subprocess.run(full_cmd, shell=True, capture_output=True, text=True)
+
+    @staticmethod
+    def _b64_utf16le(payload: str) -> str:
+        return base64.b64encode(payload.encode("utf-16le")).decode("ascii")
 
     def get_vms(self) -> List[Dict[str, Any]]:
         """Returns a list of VMs on the host."""
@@ -56,39 +62,91 @@ class HyperVManager:
         res = self.run_ps(f"Start-VM -Name '{vm_name}'")
         return res.returncode == 0
 
-    def invoke_guest_command(self, vm_name: str, script_block: str, timeout: int = 30) -> Dict[str, Any]:
-        """Executes a command inside the guest via PowerShell Direct."""
-        # PowerShell Direct uses Invoke-Command -VMName
-        # Escaping quotes for the shell command
-        escaped_script = script_block.replace("\"", "\\\"")
-        cmd = f"Invoke-Command -VMName '{vm_name}' -ScriptBlock {{ {escaped_script} }} | ConvertTo-Json"
-        
-        start_time = time.monotonic()
+    def wait_for_vm_running(self, vm_name: str, timeout: int = 30, poll_interval: float = 1.0) -> bool:
+        """Waits until a VM reports Running state."""
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if self.get_vm_state(vm_name) == "Running":
+                return True
+            time.sleep(poll_interval)
+        return False
+
+    def invoke_guest_payload(self, vm_name: str, payload: Dict[str, Any], timeout: int = 30) -> Dict[str, Any]:
+        """Executes a payload in a guest over PowerShell Direct with timeout/result capture."""
+        payload_json = json.dumps(payload)
+        encoded_payload = self._b64_utf16le(payload_json)
+        wrapped_script = textwrap.dedent(
+            """
+            $payload = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('{encoded_payload}')) | ConvertFrom-Json
+            $job = Start-Job -ScriptBlock {{
+                param($cmd)
+                $stdout = @()
+                try {{
+                    $stdout = & cmd.exe /c $cmd 2>&1
+                    $exitCode = $LASTEXITCODE
+                    if ($null -eq $exitCode) {{ $exitCode = 0 }}
+                    [PSCustomObject]@{{
+                        status = "success"
+                        stdout = ($stdout -join "`n")
+                        stderr = ""
+                        exit_code = [int]$exitCode
+                    }}
+                }} catch {{
+                    [PSCustomObject]@{{
+                        status = "error"
+                        stdout = ""
+                        stderr = $_.Exception.Message
+                        exit_code = 1
+                    }}
+                }}
+            }} -ArgumentList $payload.command
+
+            if (-not (Wait-Job -Job $job -Timeout {timeout})) {{
+                Stop-Job -Job $job -Force
+                Receive-Job -Job $job -ErrorAction SilentlyContinue | Out-Null
+                [PSCustomObject]@{{
+                    status = "timeout"
+                    stdout = ""
+                    stderr = "Guest command timed out after {timeout}s"
+                    exit_code = -1
+                }} | ConvertTo-Json -Compress
+                exit 124
+            }}
+
+            $result = Receive-Job -Job $job
+            $result | ConvertTo-Json -Compress
+            """
+        ).format(encoded_payload=encoded_payload, timeout=timeout)
+        encoded_script = self._b64_utf16le(wrapped_script)
+        cmd = (
+            f"Invoke-Command -VMName '{vm_name}' "
+            f"-ScriptBlock {{ powershell.exe -NoProfile -NonInteractive -EncodedCommand {encoded_script} }}"
+        )
+
+        started = time.monotonic()
         res = self.run_ps(cmd)
-        duration = time.monotonic() - start_time
-        
-        if res.returncode != 0:
+        duration = time.monotonic() - started
+        if res.returncode != 0 and not res.stdout.strip():
             return {
                 "status": "error",
                 "stdout": res.stdout,
                 "stderr": res.stderr,
                 "exit_code": res.returncode,
-                "duration": duration
+                "duration": duration,
             }
-            
+
+        parsed: Dict[str, Any]
         try:
-            output = json.loads(res.stdout) if res.stdout.strip() else None
-            return {
-                "status": "success",
-                "output": output,
-                "duration": duration
-            }
+            parsed = json.loads(res.stdout) if res.stdout.strip() else {}
         except json.JSONDecodeError:
-            return {
-                "status": "success",
-                "output": res.stdout.strip(),
-                "duration": duration
-            }
+            parsed = {"status": "error", "stdout": "", "stderr": f"Invalid guest JSON: {res.stdout.strip()}", "exit_code": 1}
+        parsed["duration"] = duration
+        return parsed
+
+    def check_ps_direct(self, vm_name: str) -> bool:
+        """Checks that PowerShell Direct can execute a trivial command."""
+        probe = self.run_ps(f"Invoke-Command -VMName '{vm_name}' -ScriptBlock {{ 'ready' }}")
+        return probe.returncode == 0 and "ready" in probe.stdout
 
 
 class HyperVIsolationBoundary:
@@ -97,6 +155,7 @@ class HyperVIsolationBoundary:
     def __init__(self, vm_name: str | None = None) -> None:
         self.vm_name = vm_name
         self.manager = HyperVManager()
+        self.default_timeout_seconds = 30
 
     def check_ready(self) -> Dict[str, Any]:
         """Check if Hyper-V orchestration is available and configured."""
@@ -166,13 +225,28 @@ class HyperVIsolationBoundary:
                     error_class="vm_start_error",
                     backend=self.backend_name
                 )
-            # Wait a moment for Integration Services to be ready (minimal wait)
-            time.sleep(2)
+            if not self.manager.wait_for_vm_running(self.vm_name, timeout=30):
+                return IsolationResult(
+                    status="degraded",
+                    output=f"Hyper-V VM '{self.vm_name}' start requested but VM did not reach Running state in time",
+                    error_class="vm_state_timeout",
+                    backend=self.backend_name,
+                )
 
-        # 2. Prepare payload injection
-        # Support 'shell' tool specifically via PowerShell Direct
-        if request.tool_name == "shell":
-            command = request.arguments.get("command")
+        # 2. Ensure PowerShell Direct is actually available before execution
+        if not self.manager.check_ps_direct(self.vm_name):
+            return IsolationResult(
+                status="degraded",
+                output=f"VM '{self.vm_name}' is running but PowerShell Direct is unavailable",
+                error_class="ps_direct_unavailable",
+                backend=self.backend_name,
+            )
+
+        # 3. Prepare payload injection
+        # Support open_interpreter path (plus shell alias for compatibility)
+        if request.tool_name in {"open_interpreter", "shell"}:
+            command = request.arguments.get("command", "")
+            timeout = int(request.arguments.get("timeout", self.default_timeout_seconds))
             if not command:
                 return IsolationResult(
                     status="error",
@@ -181,19 +255,31 @@ class HyperVIsolationBoundary:
                     backend=self.backend_name
                 )
             
-            res = self.manager.invoke_guest_command(self.vm_name, command)
-            if res["status"] == "success":
+            payload = {"tool": request.tool_name, "command": command}
+            res = self.manager.invoke_guest_payload(self.vm_name, payload, timeout=timeout)
+            if res.get("status") == "success":
                 return IsolationResult(
                     status="success",
-                    output=res["output"],
-                    backend=self.backend_name
+                    output={
+                        "stdout": res.get("stdout", ""),
+                        "stderr": res.get("stderr", ""),
+                        "exit_code": res.get("exit_code", 0),
+                        "duration": res.get("duration"),
+                    },
+                    backend=self.backend_name,
                 )
-            else:
+            if res.get("status") == "timeout":
                 return IsolationResult(
+                    status="degraded",
+                    output=res.get("stderr") or f"Guest command timed out after {timeout}s",
+                    error_class="guest_execution_timeout",
+                    backend=self.backend_name,
+                )
+            return IsolationResult(
                     status="error",
                     output=res.get("stderr") or res.get("stdout") or "Unknown guest error",
                     error_class="guest_execution_error",
-                    backend=self.backend_name
+                    backend=self.backend_name,
                 )
 
         return IsolationResult(
