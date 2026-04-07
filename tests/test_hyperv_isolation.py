@@ -46,22 +46,26 @@ class TestHyperVIsolation(unittest.TestCase):
         self.assertEqual(ready["vm_state"], "Running")
 
     @patch("src.execution.hyperv.HyperVIsolationBoundary.check_ready")
-    @patch("src.execution.hyperv.HyperVManager.invoke_guest_command")
-    def test_execute_shell_success(self, mock_invoke, mock_check_ready):
+    @patch("src.execution.hyperv.HyperVManager.check_ps_direct")
+    @patch("src.execution.hyperv.HyperVManager.invoke_guest_payload")
+    def test_execute_shell_success(self, mock_invoke, mock_check_ps_direct, mock_check_ready):
         mock_check_ready.return_value = {
             "ready": True,
             "vm_exists": True,
             "vm_state": "Running"
         }
+        mock_check_ps_direct.return_value = True
         mock_invoke.return_value = {
             "status": "success",
-            "output": "guest-user",
+            "stdout": "guest-user",
+            "stderr": "",
+            "exit_code": 0,
             "duration": 0.5
         }
-        
+
         result = self.boundary.execute(self.request, lambda x: x)
         self.assertEqual(result.status, "success")
-        self.assertEqual(result.output, "guest-user")
+        self.assertEqual(result.output["stdout"], "guest-user")
         self.assertEqual(result.backend, "hyperv")
 
     @patch("src.execution.hyperv.HyperVIsolationBoundary.check_ready")
@@ -75,6 +79,42 @@ class TestHyperVIsolation(unittest.TestCase):
         self.assertEqual(result.status, "error")
         self.assertEqual(result.error_class, "configuration_error")
         self.assertIn("not found", result.output)
+
+    @patch("src.execution.hyperv.HyperVIsolationBoundary.check_ready")
+    @patch("src.execution.hyperv.HyperVManager.check_ps_direct")
+    @patch("src.execution.hyperv.HyperVManager.invoke_guest_payload")
+    def test_execute_shell_timeout_degraded(self, mock_invoke, mock_check_ps_direct, mock_check_ready):
+        mock_check_ready.return_value = {
+            "ready": True,
+            "vm_exists": True,
+            "vm_state": "Running"
+        }
+        mock_check_ps_direct.return_value = True
+        mock_invoke.return_value = {
+            "status": "timeout",
+            "stderr": "Guest command timed out after 2s",
+            "exit_code": -1,
+            "duration": 2.0
+        }
+        request = IsolationRequest(tool_name="open_interpreter", arguments={"command": "sleep 10", "timeout": 2})
+
+        result = self.boundary.execute(request, lambda x: x)
+        self.assertEqual(result.status, "degraded")
+        self.assertEqual(result.error_class, "guest_execution_timeout")
+
+    @patch("src.execution.hyperv.HyperVIsolationBoundary.check_ready")
+    @patch("src.execution.hyperv.HyperVManager.check_ps_direct")
+    def test_execute_ps_direct_unavailable_degraded(self, mock_check_ps_direct, mock_check_ready):
+        mock_check_ready.return_value = {
+            "ready": True,
+            "vm_exists": True,
+            "vm_state": "Running"
+        }
+        mock_check_ps_direct.return_value = False
+
+        result = self.boundary.execute(self.request, lambda x: x)
+        self.assertEqual(result.status, "degraded")
+        self.assertEqual(result.error_class, "ps_direct_unavailable")
 
 if __name__ == "__main__":
     unittest.main()
